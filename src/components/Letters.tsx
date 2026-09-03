@@ -1,7 +1,8 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X, UtensilsCrossed } from 'lucide-react';
 import { toast } from 'sonner';
+import { useEggs } from '../lib/EggContext';
 
 const LETTERS = [
   {
@@ -26,6 +27,14 @@ const LETTERS = [
 
 export default function Letters() {
   const [selectedLetter, setSelectedLetter] = useState<typeof LETTERS[0] | null>(null);
+  const { find } = useEggs();
+
+  useEffect(() => {
+    if (!selectedLetter) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setSelectedLetter(null);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [selectedLetter]);
 
   return (
     <section className="py-32 px-6 bg-editorial-black text-editorial-cream relative overflow-hidden">
@@ -68,12 +77,16 @@ export default function Letters() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            onClick={() => setSelectedLetter(null)}
+            role="dialog"
+            aria-modal="true"
             className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-editorial-black/90 backdrop-blur-sm"
           >
             <motion.div 
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              onClick={(e) => e.stopPropagation()}
               className="bg-editorial-cream text-editorial-black p-8 md:p-12 max-w-4xl w-full relative border border-editorial-black/20 shadow-2xl flex flex-col md:flex-row gap-8 md:gap-16 items-center"
             >
               <button 
@@ -85,6 +98,7 @@ export default function Letters() {
               
               <div className="w-full md:w-1/2">
                  <img 
+                    loading="lazy"
                     src={selectedLetter.photo} 
                     alt="Memory" 
                     className="w-full aspect-[4/5] object-cover filter grayscale sepia-[0.2] border border-editorial-black/10" 
@@ -111,7 +125,11 @@ export default function Letters() {
       </AnimatePresence>
 
       <button 
-        onClick={() => toast("A fulki a day keeps the youth away. Wait... that's not how it goes.")}
+        onClick={() => {
+          find('corner-letters');
+          toast("A fulki a day keeps the youth away. Wait... that's not how it goes.");
+        }}
+        aria-label="A hidden note"
         className="absolute top-24 right-12 text-editorial-cream/10 hover:text-editorial-accent transition-colors z-50 cursor-pointer"
       >
         <UtensilsCrossed size={16} />

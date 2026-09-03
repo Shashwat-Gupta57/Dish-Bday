@@ -1,8 +1,16 @@
+import { useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { useEggs } from '../lib/EggContext';
 
 export default function Legal() {
+  const { find } = useEggs();
+
+  useEffect(() => {
+    find('fineprint');
+  }, [find]);
+
   return (
     <div className="min-h-screen bg-editorial-cream text-editorial-black py-24 px-6 md:px-24">
       <div className="max-w-3xl mx-auto">

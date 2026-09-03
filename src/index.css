@@ -6,6 +6,7 @@
   --color-editorial-black: #111111;
   --color-editorial-cream: #F9F8F6;
   --color-editorial-accent: #800020; /* Oxblood */
+  --color-editorial-mark: #E02B20;   /* Editor's Cut correction red */
 }
 
 body {
@@ -32,6 +33,18 @@ h1, h2, h3, h4, h5, h6, .font-serif {
   background: var(--color-editorial-black);
 }
 
+/*
+ * Touch devices have no hover, so every `hover:grayscale-0` photograph stayed
+ * black and white forever on the one device this site will actually be opened
+ * on. Show them in colour there instead. Targets only images that opt into the
+ * hover reveal, so the deliberately-toned ones keep their treatment.
+ */
+@media (hover: none) {
+  img[class*="hover:grayscale-0"] {
+    filter: grayscale(0) !important;
+  }
+}
+
 .bg-editorial-cream { background-color: var(--color-editorial-cream); }
 .bg-editorial-black { background-color: var(--color-editorial-black); }
 .text-editorial-cream { color: var(--color-editorial-cream); }
@@ -39,3 +52,6 @@ h1, h2, h3, h4, h5, h6, .font-serif {
 .border-editorial-black { border-color: var(--color-editorial-black); }
 .bg-editorial-accent { background-color: var(--color-editorial-accent); }
 .text-editorial-accent { color: var(--color-editorial-accent); }
+.bg-editorial-mark { background-color: var(--color-editorial-mark); }
+.text-editorial-mark { color: var(--color-editorial-mark); }
+.border-editorial-mark { border-color: var(--color-editorial-mark); }

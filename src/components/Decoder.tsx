@@ -1,81 +1,116 @@
 import { motion } from 'motion/react';
 import { ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { EGGS, NOTES } from '../lib/eggs';
+import { useEggs } from '../lib/EggContext';
 
+/**
+ * The reward, not the spoiler.
+ *
+ * The Stamp Card gives riddles while things are unfound; this gives the answers
+ * and the reasons. Nothing here hard-codes a position any more — it reads the
+ * same egg list the card does, so the copy can't drift out of sync with the site
+ * again the way the old "next to the fine vertical line" line did.
+ */
 export default function Decoder() {
+  const { isFound, foundCount, total } = useEggs();
+
   return (
     <section className="relative w-full bg-editorial-black text-editorial-cream overflow-hidden">
-      {/* Peeping Header - designed to look like it's hiding just below the page fold */}
       <div className="w-full border-t border-editorial-accent/30 py-8 flex flex-col items-center justify-center bg-editorial-black/95 backdrop-blur-md z-20 relative shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
-        <motion.div 
-          animate={{ y: [0, 10, 0] }} 
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          className="text-editorial-accent mb-4"
+        <motion.div
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          className="text-editorial-accent mb-4 motion-reduce:hidden"
         >
           <ChevronDown size={32} strokeWidth={1} />
         </motion.div>
         <p className="font-serif italic text-xl md:text-2xl text-center px-6">
-          "I know you ain't as smart as me 🥀 so..."
+          &ldquo;I know you ain&rsquo;t as smart as me &#129370; so...&rdquo;
         </p>
       </div>
 
       <div className="max-w-4xl mx-auto py-24 px-6 md:px-12 relative z-10">
-        <h2 className="text-sm tracking-[0.4em] uppercase text-editorial-cream/50 mb-16 text-center">
-          Easter Eggs & Meanings
-        </h2>
+        <header className="text-center mb-20">
+          <h2 className="text-sm tracking-[0.4em] uppercase text-editorial-cream/50 mb-4">
+            The Decoder
+          </h2>
+          <p className="font-serif text-3xl md:text-5xl italic">
+            Everything you were supposed to find.
+          </p>
+          <p className="font-sans text-sm text-editorial-cream/50 mt-6 tracking-[0.2em] uppercase">
+            {String(foundCount).padStart(2, '0')} of {String(total).padStart(2, '0')} stamped
+          </p>
+        </header>
 
-        <div className="space-y-16">
-          <div className="group border-l border-editorial-cream/20 pl-8 hover:border-editorial-accent transition-colors duration-500">
-            <h3 className="font-serif text-2xl md:text-3xl text-editorial-accent mb-4">01. The 13 Flakes</h3>
-            <p className="font-sans text-lg text-editorial-cream/80 leading-relaxed">
-              Did you notice the falling gold foil at the very end of the site? There are exactly 13 flakes generated. Not a random number—one for September 13th.
-            </p>
-          </div>
+        <div className="space-y-14">
+          {EGGS.map((egg) => {
+            const found = isFound(egg.id);
+            return (
+              <div
+                key={egg.id}
+                className={`group border-l pl-8 transition-colors duration-500 ${
+                  found
+                    ? 'border-editorial-accent/60'
+                    : 'border-editorial-cream/15 hover:border-editorial-accent'
+                }`}
+              >
+                <div className="flex items-baseline gap-4 mb-4 flex-wrap">
+                  <h3 className="font-serif text-2xl md:text-3xl text-editorial-accent">
+                    {egg.n}. {egg.title}
+                  </h3>
+                  <span
+                    className={`font-sans text-[10px] tracking-[0.3em] uppercase ${
+                      found ? 'text-editorial-accent' : 'text-editorial-cream/30'
+                    }`}
+                  >
+                    {found ? '⬤ Stamped' : 'Still out there'}
+                  </span>
+                </div>
+                <p className="font-sans text-lg text-editorial-cream/80 leading-relaxed">
+                  {egg.answer}
+                </p>
+              </div>
+            );
+          })}
+        </div>
 
-          <div className="group border-l border-editorial-cream/20 pl-8 hover:border-editorial-accent transition-colors duration-500">
-            <h3 className="font-serif text-2xl md:text-3xl text-editorial-accent mb-4">02. The Glowing Muse</h3>
-            <p className="font-sans text-lg text-editorial-cream/80 leading-relaxed">
-              In the Editor's Note prologue, the word <em>"muse"</em> holds a secret. If you hover and click it, it unlocks <strong>The Celestial Blueprint</strong>—a hidden page dedicated entirely to your Virgo energy.
-            </p>
-          </div>
-
-          <div className="group border-l border-editorial-cream/20 pl-8 hover:border-editorial-accent transition-colors duration-500">
-            <h3 className="font-serif text-2xl md:text-3xl text-editorial-accent mb-4">03. The Phantom Thirteen</h3>
-            <p className="font-sans text-lg text-editorial-cream/80 leading-relaxed">
-              Somewhere buried in the background of <em>The Archives</em> timeline, sitting right next to the fine vertical line, there is a tiny, hidden Roman numeral "xiii.". Finding and clicking it grants you access to <strong>The Vault</strong>.
-            </p>
-          </div>
-
-          <div className="group border-l border-editorial-cream/20 pl-8 hover:border-editorial-accent transition-colors duration-500">
-            <h3 className="font-serif text-2xl md:text-3xl text-editorial-accent mb-4">04. The Oxblood Palette</h3>
-            <p className="font-sans text-lg text-editorial-cream/80 leading-relaxed">
-              The entire site avoids standard bright colors. Instead, it uses Cream and Oxblood Red (that deep, wine-like accent). It represents the Earth sign groundedness mixed with intense passion and perfectionism. Very you.
-            </p>
-          </div>
-          
-          <div className="group border-l border-editorial-cream/20 pl-8 hover:border-editorial-accent transition-colors duration-500">
-            <h3 className="font-serif text-2xl md:text-3xl text-editorial-accent mb-4">05. The Micro-Secrets</h3>
-            <p className="font-sans text-lg text-editorial-cream/80 leading-relaxed">
-              The site is littered with tiny micro-interactions. Hover over the date on the cover. Hover over the word "bestie" in the prologue. Hover over the title in the Notes section. Hover over the final "Happy Birthday". Every corner has a secret just for you.
-            </p>
-          </div>
-
-          <div className="group border-l border-editorial-cream/20 pl-8 hover:border-editorial-accent transition-colors duration-500">
-            <h3 className="font-serif text-2xl md:text-3xl text-editorial-accent mb-4">06. The Privacy Policy</h3>
-            <p className="font-sans text-lg text-editorial-cream/80 leading-relaxed">
-              If you check the absolute bottom of the Decoder (right here), there is a sneaky link to a Privacy Policy & Terms page. It's totally real and legally binding, obviously. 
-            </p>
+        <div className="mt-24 pt-16 border-t border-editorial-cream/10">
+          <h3 className="text-sm tracking-[0.4em] uppercase text-editorial-cream/40 mb-12 text-center">
+            And the reasons
+          </h3>
+          <div className="space-y-12">
+            {NOTES.map((note) => (
+              <div key={note.n} className="border-l border-editorial-cream/20 pl-8">
+                <h4 className="font-serif text-xl md:text-2xl text-editorial-cream mb-3">
+                  {note.title}
+                </h4>
+                <p className="font-sans text-lg text-editorial-cream/70 leading-relaxed">
+                  {note.body}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
-        
-        <div className="mt-32 text-center pb-24">
-           <p className="font-serif text-3xl italic text-editorial-cream/30 mb-16">Now scroll back up and find them all.</p>
-           
-           <div className="border-t border-editorial-cream/10 pt-8 flex justify-center">
-             <Link to="/legal" className="text-xs uppercase tracking-[0.3em] text-editorial-cream/30 hover:text-editorial-accent transition-colors">
-               Privacy Policy & Terms
-             </Link>
-           </div>
+
+        <div className="mt-28 text-center pb-16">
+          <p className="font-serif text-2xl md:text-3xl italic text-editorial-cream/50 mb-4">
+            {foundCount === total
+              ? 'All nine. Insufferable, as expected.'
+              : 'Now scroll back up and find the rest.'}
+          </p>
+          <p className="font-sans text-xs text-editorial-cream/30 tracking-[0.2em] uppercase mb-16">
+            Triple-tap the cover title for the Editor&rsquo;s Cut
+          </p>
+
+          <div className="border-t border-editorial-cream/10 pt-8 flex justify-center">
+            <Link
+              to="/legal"
+              className="text-xs uppercase tracking-[0.3em] text-editorial-cream/50 hover:text-editorial-accent transition-colors"
+            >
+              Privacy Policy &amp; Terms
+            </Link>
+          </div>
         </div>
       </div>
     </section>

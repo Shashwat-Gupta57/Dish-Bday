@@ -1,4 +1,5 @@
 import { motion } from 'motion/react';
+import { Annotation } from '../lib/EditorsCut';
 
 export default function Roast() {
   return (
@@ -31,7 +32,12 @@ export default function Roast() {
             viewport={{ once: true }}
             className="relative"
           >
-            <span className="absolute -left-12 md:-left-16 top-0 font-serif text-4xl md:text-5xl text-editorial-black/10 italic">01</span>
+            <span className="absolute -left-4 md:-left-16 top-0 font-serif text-4xl md:text-5xl text-editorial-black/10 italic">01</span>
+            <Annotation
+              note="Numerals pulled in on mobile — at -left-12 inside a px-6 section they sat off-screen and were clipped."
+              side="bottom"
+              className="-left-4 md:-left-16 top-0 w-14 h-12"
+            />
             <h3 className="font-serif text-3xl md:text-4xl text-editorial-black mb-6">The POCSO & "Aunty" Clause</h3>
             <p className="font-sans text-lg md:text-xl text-editorial-black/80 leading-relaxed">
               We need to address the elephant in the room. You are officially 19. A whole legal adult. A <em>major</em>. Meanwhile, I am just an innocent 17-year-old minor. Technically speaking, under the POCSO Act, I am fully protected and you are the offender here. You have zero grounds to argue back when I roast you, so just accept your senior citizen status. Respect your juniors, <strong>Aunty</strong>.
@@ -45,7 +51,7 @@ export default function Roast() {
             viewport={{ once: true }}
             className="relative"
           >
-            <span className="absolute -left-12 md:-left-16 top-0 font-serif text-4xl md:text-5xl text-editorial-black/10 italic">02</span>
+            <span className="absolute -left-4 md:-left-16 top-0 font-serif text-4xl md:text-5xl text-editorial-black/10 italic">02</span>
             <h3 className="font-serif text-3xl md:text-4xl text-editorial-black mb-6">The "Stress" Diet</h3>
             <p className="font-sans text-lg md:text-xl text-editorial-black/80 leading-relaxed">
               Let's formally expose your so-called "stress eating". We all know the unending cravings for fulkis and inhaling burgers the moment minor inconveniences happen. This section legally classifies your "stress" as exactly what it is: a blatant, highly convenient excuse to eat more junk food. Nice try.

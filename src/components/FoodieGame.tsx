@@ -97,7 +97,7 @@ export default function FoodieGame() {
             />
           </div>
 
-          <div className="flex justify-center gap-6">
+          <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6">
             <button 
               onClick={() => eat(15)}
               className="flex-1 bg-editorial-cream border border-editorial-black/20 py-4 px-6 hover:bg-editorial-black hover:text-editorial-cream transition-colors text-lg font-serif italic"
