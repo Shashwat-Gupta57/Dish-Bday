@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Playfair Display", serif;
+  --font-sans: "Inter", sans-serif;
+  --color-editorial-black: #111111;
+  --color-editorial-cream: #F9F8F6;
+  --color-editorial-accent: #800020; /* Oxblood */
+}
+
+body {
+  background-color: var(--color-editorial-cream);
+  color: var(--color-editorial-black);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6, .font-serif {
+  font-family: var(--font-serif);
+}
+
+/* Custom scrollbar for editorial feel */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-editorial-cream);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-editorial-black);
+}
+
+.bg-editorial-cream { background-color: var(--color-editorial-cream); }
+.bg-editorial-black { background-color: var(--color-editorial-black); }
+.text-editorial-cream { color: var(--color-editorial-cream); }
+.text-editorial-black { color: var(--color-editorial-black); }
+.border-editorial-black { border-color: var(--color-editorial-black); }
+.bg-editorial-accent { background-color: var(--color-editorial-accent); }
+.text-editorial-accent { color: var(--color-editorial-accent); }
