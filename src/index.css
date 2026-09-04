@@ -4,6 +4,16 @@
   --font-serif: "Playfair Display", serif;
   --font-sans: "Inter", sans-serif;
   --font-mono: "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-soft: "Quicksand", ui-rounded, "Segoe UI", sans-serif;
+
+  /* Soft Nocturne — the /sleep page. The exact inverse of the brutalist
+     dossier: no hard edge, no full black, nothing at full contrast. */
+  --color-night: #14101F;
+  --color-night-deep: #1E1830;
+  --color-night-haze: #2A2340;
+  --color-moon: #EDE9F5;
+  --color-lavender: #A99BE8;
+  --color-lavender-dim: #6E63A8;
   --color-editorial-black: #111111;
   --color-editorial-cream: #F9F8F6;
   --color-editorial-accent: #800020; /* Oxblood */
@@ -72,3 +82,46 @@ h1, h2, h3, h4, h5, h6, .font-serif {
   .ticker-track { animation: none; }
 }
 .border-editorial-mark { border-color: var(--color-editorial-mark); }
+
+/* ---------------------------------------------------------------- Nocturne */
+.font-soft { font-family: var(--font-soft); }
+
+.bg-night { background-color: var(--color-night); }
+.bg-night-deep { background-color: var(--color-night-deep); }
+.bg-night-haze { background-color: var(--color-night-haze); }
+.text-moon { color: var(--color-moon); }
+.text-lavender { color: var(--color-lavender); }
+.bg-lavender { background-color: var(--color-lavender); }
+.border-lavender { border-color: var(--color-lavender); }
+
+/* Pillowy, not boxy. Two shadows: one soft drop, one inner highlight. */
+.clay {
+  border-radius: 28px;
+  background: linear-gradient(160deg, var(--color-night-haze), var(--color-night-deep));
+  box-shadow:
+    0 18px 40px -12px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(237, 233, 245, 0.06),
+    inset 0 -18px 32px -24px rgba(169, 155, 232, 0.35);
+}
+
+@keyframes drift {
+  0%, 100% { transform: translateY(0) }
+  50%      { transform: translateY(-14px) }
+}
+@keyframes breathe {
+  0%, 100% { opacity: 0.35; transform: scale(1) }
+  50%      { opacity: 0.7;  transform: scale(1.06) }
+}
+@keyframes zfloat {
+  0%   { opacity: 0; transform: translate(0, 0) scale(0.7) rotate(-8deg) }
+  25%  { opacity: 1 }
+  100% { opacity: 0; transform: translate(28px, -90px) scale(1.25) rotate(10deg) }
+}
+
+.animate-drift   { animation: drift 9s ease-in-out infinite }
+.animate-breathe { animation: breathe 7s ease-in-out infinite }
+.animate-zfloat  { animation: zfloat 4.5s ease-out infinite }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-drift, .animate-breathe, .animate-zfloat { animation: none }
+}

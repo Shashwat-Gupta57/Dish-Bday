@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useEggs } from '../lib/EggContext';
 import BackLink from '../components/BackLink';
+import { Annotation } from '../lib/EditorsCut';
 import SubjectDiagram from '../components/report/SubjectDiagram';
 import { Figure, LineChart, BarChart, HBarChart, Legend, ACCENT, STONE } from '../components/report/charts';
 
@@ -281,6 +282,44 @@ export default function Report() {
               </li>
             ))}
           </ol>
+        </section>
+
+        {/* Egg 13 — the cross-reference out to Case File 02. */}
+        <section className="relative border-2 border-editorial-black mb-8">
+          <header className="border-b-2 border-editorial-black px-4 py-2 flex items-center justify-between gap-4">
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.25em]">
+              CROSS-REFERENCE // SEE ALSO
+            </h3>
+            <span className="text-[9px] uppercase tracking-[0.2em] opacity-40">1 RELATED FILE</span>
+          </header>
+          <Link
+            to="/sleep"
+            className="group block px-4 py-5 hover:bg-editorial-black hover:text-editorial-cream transition-colors"
+          >
+            <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+              <div>
+                <p className="text-[9px] uppercase tracking-[0.25em] opacity-50 mb-1.5">
+                  CASE FILE 02 &mdash; SLEEP LABORATORY
+                </p>
+                <p className="text-base md:text-xl font-bold uppercase tracking-tight">
+                  &ldquo;SUBJECT DOES NOT STAY AWAKE&rdquo;
+                </p>
+              </div>
+              <span className="text-[10px] uppercase tracking-[0.25em] text-editorial-accent group-hover:text-editorial-cream transition-colors shrink-0">
+                OPEN FILE &rarr;
+              </span>
+            </div>
+            <p className="text-[10px] leading-relaxed opacity-60 mt-3 max-w-2xl">
+              The panel notes that the subject's intake is not the only variable trending in one
+              direction. A separate study was commissioned into what happens the moment she sits
+              down with a book. The findings were, if anything, more embarrassing.
+            </p>
+          </Link>
+          <Annotation
+            note="Egg 13. Case File 02 — the sleep laboratory."
+            side="left"
+            className="inset-0"
+          />
         </section>
 
         <footer className="flex flex-wrap gap-x-6 gap-y-2 border-2 border-editorial-black">

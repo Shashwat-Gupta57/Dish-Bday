@@ -118,6 +118,14 @@ export const EGGS: Egg[] = [
     answer:
       'At the foot of the Privacy Policy there is a line about unresolved complications. It opens the only page on this site that isn’t joking. Mostly.',
   },
+  {
+    id: 'sleepfile',
+    n: '13',
+    title: 'The Sleep File',
+    riddle: 'The Findings are only case file one. There is a second one, and it is worse.',
+    answer:
+      'At the foot of the Clinical Findings there is a cross-reference to Case File 02 — the sleep laboratory. It is the softest page on this site and the most damning.',
+  },
 ];
 
 export const TOTAL_EGGS = EGGS.length;
