@@ -37,39 +37,39 @@ const STRESSORS = [
 ];
 
 const COMPOSITION = [
-  { label: 'Fulki', value: 34 },
-  { label: 'Burger, inhaled', value: 22 },
-  { label: 'Ego', value: 19 },
-  { label: 'Unread syllabus', value: 14 },
-  { label: 'Photos of herself', value: 8 },
-  { label: 'Actual person', value: 3 },
+  { label: 'Spicy Water (Fulki)', value: 34 },
+  { label: 'Inhaled Burgers', value: 22 },
+  { label: 'Main Character Ego', value: 19 },
+  { label: 'Audacity', value: 14 },
+  { label: 'Selfies (Rejected)', value: 8 },
+  { label: 'Actual Human Being', value: 3 },
 ];
 
 const META = [
   ['REF NO.', '09-13-2007/AUNTY'],
-  ['SUBJECT', 'DISHITA'],
-  ['AGE AT FILING', '19 YRS'],
-  ['CLASSIFICATION', 'RESTRICTED'],
-  ['OBSERVATION PERIOD', '19 YRS, CONTINUOUS'],
-  ['CONSENT OBTAINED', 'NO'],
-  ['PEER REVIEWED', 'NO'],
-  ['PUBLISHED ANYWAY', 'YES'],
+  ['SUBJECT', 'DISHITA (THE DRAMA QUEEN)'],
+  ['AGE AT FILING', '19 YRS (ANCIENT)'],
+  ['CLASSIFICATION', 'RESTRICTED (FOR HER PR)'],
+  ['OBSERVATION PERIOD', 'TOO MANY YEARS'],
+  ['CONSENT OBTAINED', 'LMAO NO'],
+  ['PEER REVIEWED', 'BY MYSELF (I AM RIGHT)'],
+  ['PUBLISHED ANYWAY', 'DUH'],
 ];
 
 const TICKER = [
   'INTAKE UP 1425% SINCE 2019',
-  'DOCUMENTED STRESS UP 9%',
-  'MIDSECTION UP 34%',
-  'ACTUAL PERSON: 3%',
-  'EXCUSE REJECTED BY PANEL',
-  'SUBJECT STILL CLAIMS SHE IS BASICALLY SEVENTEEN',
+  'DELUSION UP 9000%',
+  'YOUR "STRESS" EXCUSE REJECTED BY THE SUPREME COURT OF BESTIES',
+  'ACTUAL HUMAN: 3%',
+  'SUBJECT STILL CLAIMING SHE IS BASICALLY 17',
+  'WE HAVE THE RECEIPTS, AUNTY',
 ];
 
 const FOOTNOTES = [
-  'All intake figures self-reported and therefore understood by the panel to be conservative by a factor of at least two.',
-  'The term "stress eating" appears 47 times in the subject’s own testimony and zero times in any medical record.',
+  'All intake figures are self-reported. The panel assumes the actual number of burgers inhaled is at least 3x higher.',
+  'The term "stress eating" is used by the subject as a get-out-of-jail-free card for poor self-control. Denied.',
   'Subject was offered the opportunity to respond to these findings and replied, verbatim, "shut up you minor".',
-  'The panel is seventeen and legally unqualified to publish any of this. It has published all of it.',
+  'The lead researcher is 17 and therefore legally protected under the POCSO act. Your 19-year-old rage cannot hurt me. Cope.',
 ];
 
 export default function Report() {
@@ -144,21 +144,20 @@ export default function Report() {
         <section className="border-2 border-editorial-black mb-8 p-4 md:p-6">
           <p className="text-xs md:text-sm leading-relaxed max-w-3xl">
             <span className="font-bold uppercase">ABSTRACT &mdash; </span>
-            Nineteen years of continuous observation of a single subject. The panel set out to
-            test one claim: that the subject eats the way she does because she is stressed. The
-            claim did not survive contact with the data. What follows is the file. The subject
-            is chubbier, louder and considerably more full of fulki than she was in 2019, and
-            has spent the entire period insisting that none of this is her fault.
+            Nineteen years of surviving this specimen. The panel set out to
+            test one major claim: that the subject stress-eats because of her "hectic coaching schedule". The
+            data laughed. The subject is dramatically louder, heavily fueled by spicy water, and
+            insists none of this is her fault. Typical 19-year-old Aunty behavior.
           </p>
         </section>
 
         {/* Stat wall */}
         <section className="border-2 border-editorial-black mb-8 grid grid-cols-2 lg:grid-cols-4">
           {[
-            { v: '19', l: 'YEARS ELAPSED', s: 'NON-REVERSIBLE' },
-            { v: '610', l: 'FULKIS / YEAR', s: 'SELF-REPORTED' },
-            { v: '+34%', l: 'MIDSECTION, VS 2019', s: 'STRUCTURAL' },
-            { v: '0.04', l: 'STRESS CORRELATION', s: 'STATISTICALLY NOTHING' },
+            { v: '19', l: 'YEARS OLD', s: 'BASICALLY A SENIOR CITIZEN' },
+            { v: '840+', l: 'FULKIS / YEAR', s: 'WE STOPPED COUNTING' },
+            { v: '99%', l: 'EGO DENSITY', s: 'UNPRECEDENTED LEVELS' },
+            { v: 'ZERO', l: 'STRESS CORRELATION', s: 'SHE JUST LIKES TO EAT' },
           ].map((s, i) => (
             <div
               key={s.l}
@@ -179,7 +178,7 @@ export default function Report() {
           n="01"
           title="THE AGE CURVE"
           readout={readout.age}
-          caption="OBSERVATION — The line has never once gone down. The subject maintains she is 'basically still seventeen'. The panel has reviewed the chart and disagrees. There is no known mechanism by which this reverses."
+          caption="OBSERVATION — Look at it go up. You are aging. Accept it. Claiming you are 'basically 17' is a biological lie. The math is mathing, and it says you are old."
           table={{ head: ['YEAR', 'AGE'], rows: AGE.map((d) => [d.x, d.y]) }}
         >
           <LineChart
@@ -195,7 +194,7 @@ export default function Report() {
           n="02"
           title="ANNUAL FULKI INTAKE"
           readout={readout.fulki}
-          caption="OBSERVATION — Plates per year. Growth turns near-vertical from 2024. The subject insists this is coincidental and unrelated to anything, which would be more convincing if the bar had not tripled."
+          caption="OBSERVATION — The graph literally spikes into the stratosphere. The excuse is 'syllabus', but the reality is just an uncontrollable addiction to spicy water."
           table={{ head: ['YEAR', 'PLATES'], rows: FULKI.map((d) => [d.x, d.y]) }}
         >
           <BarChart data={FULKI} yMax={650} yLabel="PLATES" onHover={set('fulki')} highlightFrom="2024" />
@@ -212,7 +211,7 @@ export default function Report() {
             n="03"
             title="THE EXCUSE, TESTED"
             readout={readout.corr}
-            caption="FINDING — Both series indexed to 100 at 2019 so they sit on one scale. Consumption: up fifteen-fold. Actual stressful events: up nine percent, which is noise. The excuse does not survive. Stress is not the variable. Hunger is the variable. She was simply hungry, for nineteen years, continuously."
+            caption="FINDING — Stress levels flatlined while junk intake went to the moon. The 'coaching class stress' defense is officially dead. You weren't stressed, you were just bored and hungry for nineteen years straight."
             table={{
               head: ['YEAR', 'JUNK (IDX)', 'STRESSORS (IDX)'],
               rows: INTAKE.map((d, i) => [d.x, d.y, STRESSORS[i].y]),
@@ -246,7 +245,7 @@ export default function Report() {
           </div>
           <p className="text-[10px] md:text-[11px] leading-relaxed text-editorial-black/70 border-t-2 border-editorial-black px-4 py-3">
             FINDING — Full breakdown of present composition. The panel wishes to stress that
-            three percent is not zero percent, and that many people manage on less.
+            three percent actual human being is concerningly low, but expected for someone with this level of audacity.
           </p>
         </section>
 
@@ -259,13 +258,10 @@ export default function Report() {
           </header>
           <div className="p-4 md:p-8">
             <p className="text-xl md:text-3xl font-bold uppercase leading-tight mb-6 max-w-3xl">
-              THE SUBJECT IS NINETEEN, STRUCTURALLY 34% FULKI, AND HAS NEVER IN HER LIFE BEEN
-              STRESSED &mdash; ONLY HUNGRY, AND EXTREMELY WELL-DEFENDED ABOUT IT.
+              THE SUBJECT IS OFFICIALLY 19, MADE ENTIRELY OF STREET FOOD AND AUDACITY, AND HAS NEVER ONCE BEEN TRULY STRESSED &mdash; JUST PERPETUALLY HUNGRY AND DRAMATIC.
             </p>
             <p className="text-xs md:text-sm leading-relaxed max-w-2xl opacity-75">
-              The panel recommends no intervention. The panel recommends cake. The panel notes
-              that it is itself seventeen and therefore unqualified to recommend anything, which
-              has never once stopped it.
+              The panel recommends a reality check. The panel also acknowledges it is 17 and therefore technically a minor bullying an elder. We do not care.
             </p>
           </div>
         </section>

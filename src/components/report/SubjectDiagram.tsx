@@ -25,7 +25,7 @@ const CALLOUTS: Callout[] = [
     y: 9,
     side: 'left',
     label: 'CRANIAL REGION',
-    note: '90% syllabus. 10% deciding what to eat next. No third region located on any scan.',
+    note: '90% "I have so much to study", 10% deciding what to eat next. Zero percent actual studying.',
   },
   {
     n: '02',
@@ -33,7 +33,7 @@ const CALLOUTS: Callout[] = [
     y: 15,
     side: 'right',
     label: 'PRIMARY FACIAL FEATURE',
-    note: 'Deployed within 0.4s of any camera entering the room. The actual face is unverified. Panel assumes it is under there.',
+    note: 'The "Candid" face. Automatically deployed within 0.4s of a camera lens. We know it\'s fake, Dishita. Kitna bhi baddie ban jao, rahogi to baby face + aunty vibes wali hi 😝',
   },
   {
     n: '03',
@@ -41,7 +41,7 @@ const CALLOUTS: Callout[] = [
     y: 27,
     side: 'right',
     label: 'GRIP, UPPER',
-    note: 'Achieves full strength only around a phone or a plate. Presented with a pen, goes limp.',
+    note: 'Phone-holding claw. Superhuman strength when clicking 400 identical selfies. Completely useless for holding a pen.',
   },
   {
     n: '04',
@@ -49,7 +49,7 @@ const CALLOUTS: Callout[] = [
     y: 52,
     side: 'left',
     label: 'LOAD-BEARING MIDSECTION',
-    note: 'Structural volume up 34% since 2019. Subject files this under STRESS. Fig. 03 files it under DINNER.',
+    note: 'The Fulki Storage Unit. Currently holding yesterday\'s "stress diet". Do not blame the syllabus for this.',
   },
   {
     n: '05',
@@ -57,7 +57,7 @@ const CALLOUTS: Callout[] = [
     y: 68,
     side: 'right',
     label: 'FIST, CLENCHED',
-    note: 'Contains either rage or a fulki. Nineteen years of observation: it has never once been rage.',
+    note: 'Contains either fake anger at her bestie or a half-eaten burger. Studies confirm it is always the burger.',
   },
   {
     n: '06',
@@ -65,7 +65,7 @@ const CALLOUTS: Callout[] = [
     y: 88,
     side: 'left',
     label: 'CENTRE OF MASS',
-    note: 'Migrating downward at a measurable rate since coaching began. This is physics. Physics does not care that it was a hard year.',
+    note: 'The Center of Audacity. Where all that main character energy and unmatched ego is securely stored.',
   },
 ];
 
@@ -163,8 +163,7 @@ export default function SubjectDiagram() {
 
         <p className="mt-6 font-mono text-[10px] md:text-[11px] leading-relaxed text-editorial-black/60 border-l-4 border-editorial-accent pl-3">
           NOTE — Specimen photographed by the specimen, in a mirror, unprompted. Subject was told
-          this was for a birthday website and asked zero follow-up questions, which the panel
-          logs as its own separate finding.
+          this was for a birthday website and asked zero follow-up questions. The narcissism is truly off the charts.
         </p>
       </div>
     </section>
