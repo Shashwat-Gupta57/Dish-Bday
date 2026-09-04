@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Sparkles } from 'lucide-react';
+import { useScrollLock } from '../lib/SmoothScroll';
 
 interface HiddenPagesProps {
   activePage: 'virgo' | 'vault' | null;
@@ -7,6 +8,8 @@ interface HiddenPagesProps {
 }
 
 export default function HiddenPages({ activePage, onClose }: HiddenPagesProps) {
+  useScrollLock(activePage !== null);
+
   return (
     <AnimatePresence>
       {activePage === 'virgo' && (
@@ -15,6 +18,7 @@ export default function HiddenPages({ activePage, onClose }: HiddenPagesProps) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: '100%' }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          data-lenis-prevent
           className="fixed inset-0 z-[100] bg-editorial-black text-editorial-cream overflow-y-auto"
         >
           <button onClick={onClose} className="fixed top-8 right-8 z-50 hover:text-editorial-accent transition-colors">
@@ -61,6 +65,7 @@ export default function HiddenPages({ activePage, onClose }: HiddenPagesProps) {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 1.05 }}
           transition={{ duration: 0.8, ease: "easeInOut" }}
+          data-lenis-prevent
           className="fixed inset-0 z-[100] bg-editorial-cream text-editorial-black overflow-y-auto"
         >
           <button onClick={onClose} className="fixed top-8 right-8 z-50 hover:text-editorial-accent transition-colors bg-white/50 backdrop-blur-md rounded-full p-2">

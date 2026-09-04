@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useEggs } from '../lib/EggContext';
+import BackLink from '../components/BackLink';
 
 export default function Legal() {
   const { find } = useEggs();
@@ -14,10 +15,10 @@ export default function Legal() {
   return (
     <div className="min-h-screen bg-editorial-cream text-editorial-black py-24 px-6 md:px-24">
       <div className="max-w-3xl mx-auto">
-        <Link to="/" className="inline-flex items-center gap-2 text-editorial-black/50 hover:text-editorial-accent transition-colors mb-16">
+        <BackLink className="inline-flex items-center gap-2 text-editorial-black/50 hover:text-editorial-accent transition-colors mb-16">
           <ArrowLeft size={16} />
           <span className="font-sans uppercase tracking-widest text-xs">Return</span>
-        </Link>
+        </BackLink>
         
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -70,6 +71,28 @@ export default function Legal() {
               </p>
               <p className="mt-12 italic font-serif text-2xl text-editorial-black text-center border-t border-editorial-black/10 pt-8">
                 Happy Birthday, Bestie. 🥂
+              </p>
+            </section>
+
+            {/* Egg 12. The last clause, at the very bottom, where nobody reads. */}
+            <section className="pt-4">
+              <h2 className="font-serif text-2xl text-editorial-accent mb-4">
+                7. Unresolved Complications
+              </h2>
+              <p>
+                This document has addressed your age, your diet and your ego. It has not
+                addressed everything. There remains at least one outstanding matter on file
+                which the parties have historically declined to discuss.{' '}
+                <Link
+                  to="/complications"
+                  className="group relative text-editorial-black hover:text-editorial-accent transition-colors duration-500 underline decoration-editorial-accent/40 decoration-1 underline-offset-4"
+                >
+                  See further complications
+                  <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-sans tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity text-editorial-accent whitespace-nowrap pointer-events-none">
+                    You sure?
+                  </span>
+                </Link>
+                .
               </p>
             </section>
           </div>

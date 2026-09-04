@@ -1,7 +1,19 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
+import { useEggs } from '../lib/EggContext';
+import { Annotation } from '../lib/EditorsCut';
 
 export default function FoodieGame() {
+  const navigate = useNavigate();
+  const { find } = useEggs();
+
+  // Egg 11. The excuse she uses is the way in.
+  const openFindings = () => {
+    find('findings');
+    navigate('/findings');
+  };
+
   const [stress, setStress] = useState(50);
   const [isPlaying, setIsPlaying] = useState(false);
   const [gameOver, setGameOver] = useState(false);
@@ -62,7 +74,31 @@ export default function FoodieGame() {
         </p>
         
         <p className="font-sans text-lg text-editorial-black/70 max-w-2xl mx-auto mb-12">
-          Your entire day is consumed by schools and coaching classes. Your stress levels are rising. You must consume copious amounts of junk food (your "stress diet") to survive the next 15 seconds!
+          Your entire day is consumed by schools and coaching classes. Your stress levels are rising. You
+          must consume copious amounts of junk food (your{' '}
+          <span
+            role="button"
+            tabIndex={0}
+            onClick={openFindings}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openFindings();
+              }
+            }}
+            className="relative group cursor-pointer text-editorial-black hover:text-editorial-accent focus-visible:text-editorial-accent transition-colors duration-500 underline decoration-editorial-accent/40 decoration-1 underline-offset-4"
+          >
+            &ldquo;stress diet&rdquo;
+            <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-sans tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity text-editorial-accent whitespace-nowrap pointer-events-none">
+              We ran the numbers
+            </span>
+            <Annotation
+              note="Egg 11. Opens the Clinical Findings — the full statistical case against her."
+              side="bottom"
+              className="inset-0"
+            />
+          </span>
+          ) to survive the next 15 seconds!
         </p>
 
         <div className="bg-white p-8 md:p-12 border border-editorial-black/20 shadow-xl max-w-2xl mx-auto relative overflow-hidden">
@@ -72,6 +108,12 @@ export default function FoodieGame() {
                <p className="font-serif text-3xl mb-4 italic">You got buried in syllabus.</p>
                <p className="text-sm uppercase tracking-widest text-editorial-accent mb-8">Should've eaten more fulkis.</p>
                <button onClick={reset} className="px-6 py-2 border border-editorial-cream/50 hover:bg-editorial-cream hover:text-editorial-black transition-colors uppercase tracking-widest text-xs">Try Again</button>
+               <button
+                 onClick={openFindings}
+                 className="mt-6 font-sans text-[10px] uppercase tracking-[0.3em] text-editorial-cream/40 hover:text-editorial-accent transition-colors"
+               >
+                 Or read why this keeps happening &rarr;
+               </button>
              </div>
           )}
           
@@ -80,6 +122,12 @@ export default function FoodieGame() {
                <p className="font-serif text-3xl mb-4 italic text-editorial-accent">You survived!</p>
                <p className="text-sm uppercase tracking-widest mb-8">Another day conquered, Aunty.</p>
                <button onClick={reset} className="px-6 py-2 border border-editorial-black/50 hover:bg-editorial-black hover:text-editorial-cream transition-colors uppercase tracking-widest text-xs">Replay</button>
+               <button
+                 onClick={openFindings}
+                 className="mt-6 font-sans text-[10px] uppercase tracking-[0.3em] text-editorial-black/40 hover:text-editorial-accent transition-colors"
+               >
+                 Now see the full findings &rarr;
+               </button>
              </div>
           )}
 

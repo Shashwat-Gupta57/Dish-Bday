@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Link } from 'react-router-dom';
+import BackLink from '../components/BackLink';
 import { ArrowLeft } from 'lucide-react';
 
 export default function Reminder() {
@@ -26,10 +26,10 @@ export default function Reminder() {
             </p>
           </div>
 
-          <Link to="/" className="inline-flex items-center gap-2 text-editorial-cream/50 hover:text-editorial-accent transition-colors">
+          <BackLink className="inline-flex items-center gap-2 text-editorial-cream/50 hover:text-editorial-accent transition-colors">
             <ArrowLeft size={16} />
             <span className="font-sans uppercase tracking-widest text-sm">Back to admiring you</span>
-          </Link>
+          </BackLink>
         </motion.div>
       </div>
     </div>

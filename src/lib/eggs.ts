@@ -102,6 +102,22 @@ export const EGGS: Egg[] = [
     answer:
       'Hover — or tap — the masthead and DISHITA becomes DIHHITA. Nineteen years and we still cannot get it right. Triple-tapping the same word opens the Editor’s Cut.',
   },
+  {
+    id: 'findings',
+    n: '11',
+    title: 'The Findings',
+    riddle: 'Somebody ran the numbers on you. The phrase she uses as an excuse is the way in.',
+    answer:
+      'In the Coaching Survival Simulator, the words “stress diet” open the Clinical Findings — nineteen years of you, plotted, charted and labelled.',
+  },
+  {
+    id: 'complication',
+    n: '12',
+    title: 'The Complication',
+    riddle: 'The Terms have one clause the lawyers did not write. It is at the very bottom, where nobody reads.',
+    answer:
+      'At the foot of the Privacy Policy there is a line about unresolved complications. It opens the only page on this site that isn’t joking. Mostly.',
+  },
 ];
 
 export const TOTAL_EGGS = EGGS.length;

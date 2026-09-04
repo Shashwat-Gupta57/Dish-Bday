@@ -3,6 +3,7 @@
 @theme {
   --font-serif: "Playfair Display", serif;
   --font-sans: "Inter", sans-serif;
+  --font-mono: "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --color-editorial-black: #111111;
   --color-editorial-cream: #F9F8F6;
   --color-editorial-accent: #800020; /* Oxblood */
@@ -54,4 +55,20 @@ h1, h2, h3, h4, h5, h6, .font-serif {
 .text-editorial-accent { color: var(--color-editorial-accent); }
 .bg-editorial-mark { background-color: var(--color-editorial-mark); }
 .text-editorial-mark { color: var(--color-editorial-mark); }
+
+/* Brutalist page (/findings): hard rules, no softening. */
+.font-mono { font-family: var(--font-mono); }
+
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.ticker-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: ticker 38s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track { animation: none; }
+}
 .border-editorial-mark { border-color: var(--color-editorial-mark); }

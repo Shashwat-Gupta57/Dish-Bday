@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { EGGS } from '../lib/eggs';
 import { useEggs } from '../lib/EggContext';
+import { useScrollLock } from '../lib/SmoothScroll';
 
 /**
  * The hunt, made legible.
@@ -16,16 +17,14 @@ export default function StampCard() {
   const { isFound, foundCount, total, complete } = useEggs();
   const [open, setOpen] = useState(false);
 
+  // Freezes the smooth scroller as well as the body.
+  useScrollLock(open);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
     window.addEventListener('keydown', onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      document.body.style.overflow = prev;
-    };
+    return () => window.removeEventListener('keydown', onKey);
   }, [open]);
 
   return (
@@ -57,6 +56,7 @@ export default function StampCard() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setOpen(false)}
+            data-lenis-prevent
             className="fixed inset-0 z-[310] bg-editorial-black/85 backdrop-blur-sm flex items-start md:items-center justify-center p-4 md:p-8 overflow-y-auto"
           >
             <motion.div

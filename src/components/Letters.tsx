@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { X, UtensilsCrossed } from 'lucide-react';
 import { toast } from 'sonner';
 import { useEggs } from '../lib/EggContext';
+import { useScrollLock } from '../lib/SmoothScroll';
 import { Annotation } from '../lib/EditorsCut';
 
 const LETTERS = [
@@ -29,6 +30,7 @@ const LETTERS = [
 export default function Letters() {
   const [selectedLetter, setSelectedLetter] = useState<typeof LETTERS[0] | null>(null);
   const { find } = useEggs();
+  useScrollLock(selectedLetter !== null);
 
   useEffect(() => {
     if (!selectedLetter) return;

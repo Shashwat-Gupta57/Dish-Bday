@@ -1,6 +1,7 @@
 import { motion, useTransform, MotionValue, AnimatePresence, useMotionValue, animate } from 'motion/react';
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import { useScrollLock } from '../lib/SmoothScroll';
 
 interface ArchiveDiveProps {
   onClose: () => void;
@@ -32,6 +33,8 @@ function ArchivePhoto({ src, x, y, index, progress }: { src: string, x: string, 
 }
 
 export default function ArchiveDive({ onClose }: ArchiveDiveProps) {
+  // The dive owns the whole screen; nothing behind it should move.
+  useScrollLock(true);
   const [showFinalMessage, setShowFinalMessage] = useState(false);
   const [finalArrived, setFinalArrived] = useState(false);
   const progress = useMotionValue(0);
