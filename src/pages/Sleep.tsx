@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion, useScroll, useTransform, useSpring } from 'motion/react';
+import { useEffect, useRef, useCallback } from 'react';
+import { AnimatePresence, motion, useTransform, useMotionValue, animate } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { useEggs } from '../lib/EggContext';
 import { useIdleSleep } from '../lib/useIdleSleep';
@@ -39,24 +39,43 @@ const STATS = [
 export default function Sleep() {
   const { find } = useEggs();
   const ref = useRef<HTMLDivElement>(null);
-  const [caffeinated, setCaffeinated] = useState(false);
-  const { asleep, dozed, wake } = useIdleSleep(12000, !caffeinated);
+  const { asleep, dozed, wake } = useIdleSleep(12000);
 
   useEffect(() => {
     find('sleepfile');
   }, [find]);
 
-  const { scrollYProgress } = useScroll();
-  const smooth = useSpring(scrollYProgress, { stiffness: 40, damping: 20 });
-
-  // Alertness drains from 100 to 0 as you go down the page.
-  const alertness = useTransform(smooth, [0, 1], [100, 0]);
+  // Alertness drains from 100 to 0 automatically over 7.5 seconds.
+  const alertness = useMotionValue(100);
   const alertnessText = useTransform(alertness, (v) => `${Math.round(v)}%`);
   const moonFill = useTransform(alertness, [0, 100], ['100%', '0%']);
-  // The page itself gets progressively hazier towards the bottom.
-  const haze = useTransform(smooth, [0, 0.6, 1], [0, 0.15, 0.5]);
-  const pageBlur = useTransform(smooth, [0.75, 1], ['blur(0px)', 'blur(16px)']);
-  const contentOpacity = useTransform(smooth, [0.85, 1], [1, 0.2]);
+  
+  const haze = useTransform(alertness, [100, 40, 0], [0, 0.15, 0.5]);
+  const pageBlur = useTransform(alertness, [100, 25, 0], ['blur(0px)', 'blur(4px)', 'blur(16px)']);
+  const contentOpacity = useTransform(alertness, [100, 15, 0], [1, 0.8, 0.2]);
+
+  const controls = useRef<any>(null);
+
+  const startDrain = useCallback(() => {
+    controls.current?.stop();
+    controls.current = animate(alertness, 0, { duration: 7.5, ease: 'linear' });
+  }, [alertness]);
+
+  useEffect(() => {
+    startDrain();
+    return () => controls.current?.stop();
+  }, [startDrain]);
+
+  const splash = () => {
+    controls.current?.stop();
+    const curr = alertness.get();
+    // Beating effect: Blinks between blurry and sharp to simulate jerking awake
+    controls.current = animate(alertness, [curr, Math.max(curr, 40), 15, 80, 40, 100], {
+      duration: 1.8,
+      ease: 'easeInOut',
+      onComplete: startDrain,
+    });
+  };
 
   return (
     <div ref={ref} className="relative min-h-screen bg-night text-moon overflow-hidden">
@@ -91,32 +110,29 @@ export default function Sleep() {
         ))}
       </div>
 
-      {/* Drowsiness wash — thickens as she scrolls */}
+      {/* Drowsiness wash — thickens over time */}
       <motion.div
         aria-hidden="true"
         className="pointer-events-none fixed inset-0 z-30 bg-night"
-        style={{ opacity: caffeinated ? 0 : haze }}
+        style={{ opacity: haze }}
       />
 
       {/* Alertness HUD */}
       <div className="fixed top-4 right-4 md:top-6 md:right-6 z-40 flex items-center gap-3 rounded-full bg-night-deep/80 backdrop-blur-md border border-moon/10 px-4 py-2 shadow-[0_0_15px_rgba(169,155,232,0.15)]">
         <span className="relative w-4 h-4 rounded-full overflow-hidden bg-moon/20 shrink-0">
-          <motion.span className="absolute inset-x-0 bottom-0 bg-lavender" style={{ height: caffeinated ? '100%' : moonFill }} />
+          <motion.span className="absolute inset-x-0 bottom-0 bg-lavender" style={{ height: moonFill }} />
         </span>
         <span className="font-soft text-[9px] tracking-[0.25em] uppercase text-moon/50">
           Dishita's Alertness
         </span>
         <motion.span className="font-soft text-[11px] tabular-nums text-lavender w-9 text-right">
-          {caffeinated ? '100%' : alertnessText}
+          {alertnessText}
         </motion.span>
       </div>
 
       <motion.div 
         className="relative z-20 px-6 md:px-12 py-16 md:py-24 max-w-4xl mx-auto"
-        style={{ 
-          filter: caffeinated ? 'none' : pageBlur, 
-          opacity: caffeinated ? 1 : contentOpacity 
-        }}
+        style={{ filter: pageBlur, opacity: contentOpacity }}
       >
         <BackLink className="inline-flex items-center gap-2 font-soft text-[10px] tracking-[0.3em] uppercase text-moon/40 hover:text-lavender transition-colors mb-20">
           &larr; Back
@@ -248,21 +264,18 @@ export default function Sleep() {
         </footer>
       </motion.div>
 
-      {/* Escape mechanism: Caffeinate button */}
+      {/* Escape mechanism: Splash Water button */}
       <div className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50">
-        <button
-          onClick={() => setCaffeinated(!caffeinated)}
-          className={`flex items-center justify-center gap-2 px-5 py-3 rounded-full shadow-xl transition-all duration-300 ${
-            caffeinated 
-              ? 'bg-lavender text-night font-bold scale-105' 
-              : 'bg-night-deep border border-moon/20 text-moon/60 hover:text-moon/90 hover:border-moon/40'
-          }`}
+        <motion.button
+          onClick={splash}
+          whileTap={{ scale: 0.9 }}
+          className="flex items-center justify-center gap-2 px-5 py-3 rounded-full shadow-xl transition-all duration-300 bg-lavender text-night font-bold hover:shadow-[0_0_30px_rgba(169,155,232,0.5)]"
         >
-          <span className="text-lg leading-none">{caffeinated ? '⚡' : '☕'}</span>
+          <span className="text-lg leading-none">☕</span>
           <span className="font-soft text-xs tracking-wider uppercase">
-            {caffeinated ? 'Fully Awake' : 'Splash Water'}
+            Splash Water
           </span>
-        </button>
+        </motion.button>
       </div>
 
       {/* The page falls asleep on you. */}
