@@ -5,6 +5,8 @@
   --font-sans: "Inter", sans-serif;
   --font-mono: "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --font-soft: "Quicksand", ui-rounded, "Segoe UI", sans-serif;
+  --font-journal: "Newsreader", "Playfair Display", serif;
+  --font-typewriter: "Special Elite", monospace;
 
   /* Soft Nocturne — the /sleep page. The exact inverse of the brutalist
      dossier: no hard edge, no full black, nothing at full contrast. */
@@ -85,6 +87,8 @@ h1, h2, h3, h4, h5, h6, .font-serif {
 
 /* ---------------------------------------------------------------- Nocturne */
 .font-soft { font-family: var(--font-soft); }
+.font-journal { font-family: var(--font-journal); }
+.font-typewriter { font-family: var(--font-typewriter); }
 
 .bg-night { background-color: var(--color-night); }
 .bg-night-deep { background-color: var(--color-night-deep); }

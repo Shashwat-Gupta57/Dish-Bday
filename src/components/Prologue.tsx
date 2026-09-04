@@ -69,7 +69,7 @@ export default function Prologue({ openPage }: PrologueProps) {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, ease: 'easeOut', delay: 0.2 }}
           viewport={{ once: true, margin: '-100px' }}
-          className="font-serif text-3xl md:text-5xl lg:text-7xl leading-tight md:leading-tight mb-16 relative z-10"
+          className="font-journal text-3xl md:text-5xl lg:text-7xl leading-tight md:leading-tight mb-16 relative z-10 italic tracking-tight text-editorial-cream/90"
         >
           We could talk about how you look today... but it&rsquo;s getting repetitive stating
           you&rsquo;re the most gorgeous person in the room.
