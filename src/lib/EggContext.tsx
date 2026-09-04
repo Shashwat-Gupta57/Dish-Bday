@@ -119,7 +119,9 @@ export function EggProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (complete && !celebrated.current) {
       celebrated.current = true;
-      toast('All nine found.', { description: 'The Decoder is open at the foot of the page.' });
+      toast(`All ${TOTAL_EGGS} found.`, {
+        description: 'The Decoder is open at the foot of the page.',
+      });
     }
   }, [complete]);
 

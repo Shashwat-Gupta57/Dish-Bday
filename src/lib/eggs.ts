@@ -94,6 +94,14 @@ export const EGGS: Egg[] = [
     answer:
       'The Privacy Policy & Terms page. Legally binding, obviously. Reachable from the foot of the Stamp Card and the foot of the Decoder.',
   },
+  {
+    id: 'typo',
+    n: '10',
+    title: 'The Typo',
+    riddle: 'The magazine cannot spell its own cover star’s name. Lean on it.',
+    answer:
+      'Hover — or tap — the masthead and DISHITA becomes DIHHITA. Nineteen years and we still cannot get it right. Triple-tapping the same word opens the Editor’s Cut.',
+  },
 ];
 
 export const TOTAL_EGGS = EGGS.length;

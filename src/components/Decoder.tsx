@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import { ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { EGGS, NOTES } from '../lib/eggs';
+import { Annotation } from '../lib/EditorsCut';
 import { useEggs } from '../lib/EggContext';
 
 /**
@@ -96,20 +97,25 @@ export default function Decoder() {
         <div className="mt-28 text-center pb-16">
           <p className="font-serif text-2xl md:text-3xl italic text-editorial-cream/50 mb-4">
             {foundCount === total
-              ? 'All nine. Insufferable, as expected.'
+              ? 'Every last one. Insufferable, as expected.'
               : 'Now scroll back up and find the rest.'}
           </p>
           <p className="font-sans text-xs text-editorial-cream/30 tracking-[0.2em] uppercase mb-16">
             Triple-tap the cover title for the Editor&rsquo;s Cut
           </p>
 
-          <div className="border-t border-editorial-cream/10 pt-8 flex justify-center">
+          <div className="relative border-t border-editorial-cream/10 pt-8 flex justify-center">
             <Link
               to="/legal"
               className="text-xs uppercase tracking-[0.3em] text-editorial-cream/50 hover:text-editorial-accent transition-colors"
             >
               Privacy Policy &amp; Terms
             </Link>
+            <Annotation
+              note="Egg 09. Also linked from the foot of the Stamp Card, so the Terms page isn't only reachable from behind this gate."
+              side="top"
+              className="bottom-0 left-1/2 -translate-x-1/2 w-56 h-6"
+            />
           </div>
         </div>
       </div>

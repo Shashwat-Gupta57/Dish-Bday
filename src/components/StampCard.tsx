@@ -85,8 +85,8 @@ export default function StampCard() {
                 <h2 className="font-serif text-4xl md:text-5xl italic">The Stamp Card</h2>
                 <p className="font-sans text-sm text-editorial-black/60 mt-4 max-w-lg leading-relaxed">
                   {complete
-                    ? 'All nine. The Decoder is unlocked at the foot of the page \u2014 it will tell you what each one meant.'
-                    : 'Nine things are hidden in this issue. The empty ones come with a clue and nothing more.'}
+                    ? 'Every one of them. The Decoder is unlocked at the foot of the page \u2014 it will tell you what each one meant.'
+                    : `${total} things are hidden in this issue. The empty ones come with a clue and nothing more.`}
                 </p>
               </header>
 

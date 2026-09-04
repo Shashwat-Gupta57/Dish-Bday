@@ -7,6 +7,14 @@ import { useTapHover } from '../lib/useTapHover';
 import { useEggs } from '../lib/EggContext';
 import { Annotation, useEditorsCut } from '../lib/EditorsCut';
 
+/**
+ * The hero is already fully on screen at scroll progress 0, so every plane here
+ * is anchored to 'start'. Anchored to 'center' (the default, right for every
+ * section below the fold) the masthead rendered hundreds of pixels above where
+ * it was laid out — which is what dragged DISHITA off the bottom of the frame.
+ */
+const HERO_TRAVEL = 180;
+
 export default function Cover() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -14,14 +22,24 @@ export default function Cover() {
     offset: ['start start', 'end start'],
   });
 
-  // Three planes, one set of speeds, no bespoke numbers.
-  const back = usePlaneY(scrollYProgress, 'back', 420, true);
-  const mid = usePlaneY(scrollYProgress, 'mid', 260);
-  const front = usePlaneY(scrollYProgress, 'front', 420, true);
+  const back = usePlaneY(scrollYProgress, 'back', HERO_TRAVEL, true, 'start');
+  const mid = usePlaneY(scrollYProgress, 'mid', HERO_TRAVEL, false, 'start');
+  const front = usePlaneY(scrollYProgress, 'front', HERO_TRAVEL, true, 'start');
 
   const { find } = useEggs();
-  const { tripleTap } = useEditorsCut();
+  const { tripleTap, active: cutActive } = useEditorsCut();
   const date = useTapHover(() => find('forever'));
+  const name = useTapHover(() => find('typo'));
+
+  // The masthead carries two things: the typo reveal and the Editor's Cut
+  // triple-tap. Spreading both prop bags would silently drop one onClick.
+  const nameBind = {
+    ...name.bind,
+    onClick: () => {
+      name.bind.onClick?.();
+      tripleTap.onClick();
+    },
+  };
 
   return (
     <section
@@ -75,15 +93,15 @@ export default function Cover() {
         className="absolute z-20 bottom-12 md:bottom-24 w-full flex flex-col items-center justify-center mix-blend-difference"
       >
         <h1
-          {...tripleTap}
+          {...nameBind}
           title="Vol. 1"
-          className="text-6xl md:text-8xl lg:text-9xl text-white font-serif uppercase tracking-tight text-center select-none cursor-default"
+          className="relative text-6xl md:text-8xl lg:text-9xl text-white font-serif uppercase tracking-tight text-center select-none cursor-pointer"
         >
-          DISHITA
+          {name.active ? 'DIHHITA🥀' : 'DISHITA'}
         </h1>
         <p
           {...date.bind}
-          className="text-white/80 mt-2 uppercase tracking-[0.3em] text-xs md:text-sm font-sans cursor-pointer select-none"
+          className="relative text-white/80 mt-2 uppercase tracking-[0.3em] text-xs md:text-sm font-sans cursor-pointer select-none"
         >
           Vol. 1 &mdash;{' '}
           {date.active ? (
@@ -93,6 +111,29 @@ export default function Cover() {
           )}
         </p>
       </motion.div>
+
+      {/* Annotations for the masthead sit outside the mix-blend-difference layer,
+          which would otherwise invert the correction red into something unreadable. */}
+      {cutActive && (
+        <>
+          <Annotation
+            note="Egg 10. The masthead misspells itself on hover or tap. Triple-tap it for this mode."
+            side="right"
+            className="bottom-12 md:bottom-24 left-1/2 -translate-x-1/2 w-64 md:w-96 h-16 md:h-28 z-[340]"
+          />
+          <Annotation
+            note="Egg 07. The date under the masthead is negotiable."
+            side="left"
+            className="bottom-6 md:bottom-16 left-1/2 -translate-x-1/2 w-40 h-6 z-[340]"
+          />
+          <Annotation
+            note="Egg 06a. Coffee. One of four corner icons — the other three are in the Editor's Note, the Archives and the Private Collection."
+            side="left"
+            className="bottom-11 right-11 w-6 h-6 z-[340]"
+            circle
+          />
+        </>
+      )}
 
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center animate-bounce z-20 mix-blend-difference motion-reduce:animate-none">
         <span className="text-white text-xs uppercase tracking-widest mb-2">Scroll to unveil</span>

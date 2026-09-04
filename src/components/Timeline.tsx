@@ -261,6 +261,12 @@ export default function Timeline({ openPage }: TimelineProps) {
         style={{ writingMode: 'vertical-rl' }}
       >
         Surprise
+        <Annotation
+          note="Egg 03. Drops you into the Archive Dive."
+          side="left"
+          className="inset-0"
+          circle
+        />
       </div>
 
       <div className="absolute top-0 bottom-0 left-6 md:left-12 lg:left-24 w-[1px] bg-editorial-black/10"></div>
@@ -278,6 +284,11 @@ export default function Timeline({ openPage }: TimelineProps) {
           >
             Go eat a burger, Aunty.
           </span>
+          <Annotation
+            note="Egg 04. A full sentence set in transparent text. Hover, tap or tab to it."
+            side="bottom"
+            className="top-0 right-0 md:right-10 w-40 h-4"
+          />
 
           <h2 className="text-sm tracking-[0.4em] uppercase text-editorial-black/50 mb-4">
             The Archives
@@ -293,6 +304,13 @@ export default function Timeline({ openPage }: TimelineProps) {
           ))}
         </div>
       </div>
+
+      <Annotation
+        note="Egg 06c. Hourglass. Third of the four corner icons."
+        side="right"
+        className="bottom-23 left-11 w-6 h-6 z-[340]"
+        circle
+      />
 
       <button
         onClick={() => {

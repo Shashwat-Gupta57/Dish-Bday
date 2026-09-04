@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { X, UtensilsCrossed } from 'lucide-react';
 import { toast } from 'sonner';
 import { useEggs } from '../lib/EggContext';
+import { Annotation } from '../lib/EditorsCut';
 
 const LETTERS = [
   {
@@ -124,7 +125,14 @@ export default function Letters() {
         )}
       </AnimatePresence>
 
-      <button 
+      <Annotation
+        note="Egg 06d. Cutlery. Last of the four corner icons — all four together make one stamp."
+        side="left"
+        className="top-23 right-11 w-6 h-6 z-[340]"
+        circle
+      />
+
+      <button
         onClick={() => {
           find('corner-letters');
           toast("A fulki a day keeps the youth away. Wait... that's not how it goes.");

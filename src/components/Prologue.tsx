@@ -130,6 +130,13 @@ export default function Prologue({ openPage }: PrologueProps) {
 
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1px] h-32 bg-editorial-cream/20 z-0"></div>
 
+      <Annotation
+        note="Egg 06b. Book. Second of the four corner icons."
+        side="right"
+        className="top-11 left-11 w-6 h-6 z-[340]"
+        circle
+      />
+
       <button
         onClick={() => {
           find('corner-prologue');
