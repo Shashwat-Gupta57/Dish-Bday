@@ -26,6 +26,10 @@ export default function SnoozeAlarm() {
   const [count, setCount] = useState(0);
   const [ringing, setRinging] = useState(true);
   const [minutes, setMinutes] = useState(6 * 60 + 30); // 06:30
+  const [dismissAt, setDismissAt] = useState({ x: 0, y: 0 });
+
+  const dodgeDismiss = () =>
+    setDismissAt({ x: (Math.random() - 0.5) * 130, y: (Math.random() - 0.5) * 40 + 18 });
 
   // Comes back on its own. Obviously.
   useEffect(() => {
@@ -96,22 +100,28 @@ export default function SnoozeAlarm() {
             Snooze
           </motion.button>
 
-          {/* Always present, always just out of reach. */}
-          <motion.button
-            disabled
-            aria-disabled="true"
-            title="Not for you"
-            className="font-soft text-[10px] tracking-[0.3em] uppercase text-moon/15 cursor-not-allowed px-6 py-2 relative"
-            onHoverStart={(e) => {
-              // Just a little chaotic jump
-              const dx = (Math.random() - 0.5) * 100;
-              const dy = (Math.random() - 0.5) * 40 + 20;
-              e.target.style.transform = `translate(${dx}px, ${dy}px)`;
-            }}
-            style={{ transition: 'transform 0.15s ease-out' }}
+          {/* Always present, always just out of reach.
+
+              A `disabled` button fires no pointer events in most browsers, so
+              the dodge is driven from a wrapper. Position is state rather than a
+              direct style write — that way Motion springs it instead of
+              snapping, and there's no untyped reach into e.target. */}
+          <span
+            onMouseEnter={dodgeDismiss}
+            onTouchStart={dodgeDismiss}
+            className="inline-block"
           >
-            Dismiss
-          </motion.button>
+            <motion.button
+              disabled
+              aria-disabled="true"
+              title="Not for you"
+              animate={{ x: dismissAt.x, y: dismissAt.y }}
+              transition={{ type: 'spring', stiffness: 320, damping: 14 }}
+              className="font-soft text-[10px] tracking-[0.3em] uppercase text-moon/15 cursor-not-allowed px-6 py-2"
+            >
+              Dismiss
+            </motion.button>
+          </span>
         </div>
 
         <p className="font-soft text-[10px] tracking-[0.25em] uppercase text-moon/35 mt-8 tabular-nums">

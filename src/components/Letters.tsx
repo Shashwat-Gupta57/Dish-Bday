@@ -5,12 +5,14 @@ import { toast } from 'sonner';
 import { useEggs } from '../lib/EggContext';
 import { useScrollLock } from '../lib/SmoothScroll';
 import { Annotation } from '../lib/EditorsCut';
+import { useNavigate } from 'react-router-dom';
 
 const LETTERS = [
   {
     id: 1,
     title: "The Camera Roll Audit",
     subtitle: "FILE 001 // VANITY",
+    cta: "gallery",
     content: "I scrolled through your gallery. 4,200 photos from last month. 4,198 of them are the exact same 'candid' angle where you pretend you didn't know the camera was there. We both know you spent 15 minutes setting up that lighting, Dishita. Who are you lying to?",
     photo: "/photo-16.jpg"
   },
@@ -52,8 +54,9 @@ const LETTERS = [
 ];
 
 export default function Letters() {
-  const [selectedLetter, setSelectedLetter] = useState<typeof LETTERS[0] | null>(null);
+  const [selectedLetter, setSelectedLetter] = useState<(typeof LETTERS)[number] | null>(null);
   const { find } = useEggs();
+  const navigate = useNavigate();
   useScrollLock(selectedLetter !== null);
 
   useEffect(() => {
@@ -189,8 +192,42 @@ export default function Letters() {
                   {selectedLetter.title}
                 </h3>
                 
+                {/* Egg 14 — one word in File 001 is a door. Split around it so
+                    the sentence still reads as one sentence. */}
                 <p className="font-mono text-sm md:text-base leading-relaxed text-editorial-black/80 whitespace-pre-wrap">
-                  {selectedLetter.content}
+                  {'cta' in selectedLetter && selectedLetter.cta
+                    ? (() => {
+                        const word = selectedLetter.cta as string;
+                        const [before, ...rest] = selectedLetter.content.split(word);
+                        return (
+                          <>
+                            {before}
+                            <span
+                              role="button"
+                              tabIndex={0}
+                              onClick={() => {
+                                find('theask');
+                                navigate('/please');
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault();
+                                  find('theask');
+                                  navigate('/please');
+                                }
+                              }}
+                              className="relative group cursor-pointer text-editorial-accent underline decoration-editorial-accent/50 decoration-1 underline-offset-4 hover:decoration-2 focus-visible:decoration-2 transition-all"
+                            >
+                              {word}
+                              <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[9px] font-sans tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity text-editorial-accent whitespace-nowrap pointer-events-none">
+                                about that
+                              </span>
+                            </span>
+                            {rest.join(word)}
+                          </>
+                        );
+                      })()
+                    : selectedLetter.content}
                 </p>
                 
                 <div className="mt-12 pt-8 border-t-2 border-editorial-black/10 flex justify-between items-end">

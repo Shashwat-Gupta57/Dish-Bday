@@ -126,6 +126,14 @@ export const EGGS: Egg[] = [
     answer:
       'At the foot of the Clinical Findings there is a cross-reference to Case File 02 — the sleep laboratory. It is the softest page on this site and the most damning.',
   },
+  {
+    id: 'theask',
+    n: '14',
+    title: 'The Ask',
+    riddle: 'File 001 accuses you of having four thousand photos. One word in it is a door.',
+    answer:
+      'In the Camera Roll Audit, the word “gallery” opens the only page on this site that wants something from you. It is very soft and it is begging.',
+  },
 ];
 
 export const TOTAL_EGGS = EGGS.length;

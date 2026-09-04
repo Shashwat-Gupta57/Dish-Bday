@@ -11,6 +11,7 @@ import Reminder from './pages/Reminder';
 import Report from './pages/Report';
 import Complications from './pages/Complications';
 import Sleep from './pages/Sleep';
+import Please from './pages/Please';
 import Grain from './components/Grain';
 import StampCard from './components/StampCard';
 import ScrollManager from './components/ScrollManager';
@@ -42,6 +43,7 @@ export default function App() {
                 <Route path="/findings" element={<Report />} />
                 <Route path="/complications" element={<Complications />} />
                 <Route path="/sleep" element={<Sleep />} />
+                <Route path="/please" element={<Please />} />
                 {/* A typo in the URL used to render a blank white page. */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
