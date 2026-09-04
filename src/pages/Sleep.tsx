@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useScroll, useTransform, useSpring } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { useEggs } from '../lib/EggContext';
@@ -39,7 +39,8 @@ const STATS = [
 export default function Sleep() {
   const { find } = useEggs();
   const ref = useRef<HTMLDivElement>(null);
-  const { asleep, dozed, wake } = useIdleSleep(22000);
+  const [caffeinated, setCaffeinated] = useState(false);
+  const { asleep, dozed, wake } = useIdleSleep(12000, !caffeinated);
 
   useEffect(() => {
     find('sleepfile');
@@ -54,6 +55,8 @@ export default function Sleep() {
   const moonFill = useTransform(alertness, [0, 100], ['100%', '0%']);
   // The page itself gets progressively hazier towards the bottom.
   const haze = useTransform(smooth, [0, 0.6, 1], [0, 0.15, 0.5]);
+  const pageBlur = useTransform(smooth, [0.75, 1], ['blur(0px)', 'blur(16px)']);
+  const contentOpacity = useTransform(smooth, [0.85, 1], [1, 0.2]);
 
   return (
     <div ref={ref} className="relative min-h-screen bg-night text-moon overflow-hidden">
@@ -70,38 +73,71 @@ export default function Sleep() {
             animationDelay: '3s',
           }}
         />
+        {/* Floating Zzs in the background always */}
+        {[...Array(6)].map((_, i) => (
+          <span
+            key={i}
+            className="absolute font-serif italic text-lavender/10 animate-zfloat"
+            style={{
+              fontSize: `${Math.random() * 3 + 2}rem`,
+              left: `${15 + Math.random() * 70}%`,
+              top: `${20 + Math.random() * 60}%`,
+              animationDelay: `${Math.random() * 5}s`,
+              animationDuration: `${Math.random() * 4 + 6}s`,
+            }}
+          >
+            Z
+          </span>
+        ))}
       </div>
 
       {/* Drowsiness wash — thickens as she scrolls */}
       <motion.div
         aria-hidden="true"
         className="pointer-events-none fixed inset-0 z-30 bg-night"
-        style={{ opacity: haze }}
+        style={{ opacity: caffeinated ? 0 : haze }}
       />
 
       {/* Alertness HUD */}
-      <div className="fixed top-4 right-4 md:top-6 md:right-6 z-40 flex items-center gap-3 rounded-full bg-night-deep/80 backdrop-blur-md border border-moon/10 px-4 py-2">
+      <div className="fixed top-4 right-4 md:top-6 md:right-6 z-40 flex items-center gap-3 rounded-full bg-night-deep/80 backdrop-blur-md border border-moon/10 px-4 py-2 shadow-[0_0_15px_rgba(169,155,232,0.15)]">
         <span className="relative w-4 h-4 rounded-full overflow-hidden bg-moon/20 shrink-0">
-          <motion.span className="absolute inset-x-0 bottom-0 bg-lavender" style={{ height: moonFill }} />
+          <motion.span className="absolute inset-x-0 bottom-0 bg-lavender" style={{ height: caffeinated ? '100%' : moonFill }} />
         </span>
         <span className="font-soft text-[9px] tracking-[0.25em] uppercase text-moon/50">
-          Alertness
+          Dishita's Alertness
         </span>
         <motion.span className="font-soft text-[11px] tabular-nums text-lavender w-9 text-right">
-          {alertnessText}
+          {caffeinated ? '100%' : alertnessText}
         </motion.span>
       </div>
 
-      <div className="relative z-20 px-6 md:px-12 py-16 md:py-24 max-w-4xl mx-auto">
+      <motion.div 
+        className="relative z-20 px-6 md:px-12 py-16 md:py-24 max-w-4xl mx-auto"
+        style={{ 
+          filter: caffeinated ? 'none' : pageBlur, 
+          opacity: caffeinated ? 1 : contentOpacity 
+        }}
+      >
         <BackLink className="inline-flex items-center gap-2 font-soft text-[10px] tracking-[0.3em] uppercase text-moon/40 hover:text-lavender transition-colors mb-20">
           &larr; Back
         </BackLink>
 
-        <header className="mb-24 md:mb-32">
+        <header className="mb-24 md:mb-32 relative">
+          <motion.div 
+            initial={{ rotate: -10, scale: 0 }}
+            animate={{ rotate: -15, scale: 1 }}
+            transition={{ type: 'spring', delay: 0.5, bounce: 0.6 }}
+            className="absolute -top-12 left-10 md:left-24 z-10 bg-lavender text-night px-4 py-2 rounded-xl shadow-lg border border-lavender-light max-w-[200px]"
+          >
+            <p className="font-soft text-[10px] leading-tight font-medium">
+              kitna bhi baddie ban jao, rahogi to baby face+aunty vibes wali hi😝
+            </p>
+          </motion.div>
+
           <p className="font-soft text-[10px] tracking-[0.4em] uppercase text-moon/35 mb-6">
             Case File 02 &middot; Sleep Laboratory &middot; Observed, not consented
           </p>
-          <h1 className="font-serif text-5xl md:text-7xl leading-[0.95] italic mb-8">
+          <h1 className="font-serif text-5xl md:text-7xl leading-[0.95] italic mb-8 inline-block animate-nod-off origin-bottom-left">
             The Sleep Queen
           </h1>
           <p className="font-soft text-lg md:text-xl leading-relaxed text-moon/60 max-w-xl">
@@ -113,8 +149,17 @@ export default function Sleep() {
         </header>
 
         <section className="grid grid-cols-2 gap-4 md:gap-6 mb-24 md:mb-32">
-          {STATS.map((s) => (
-            <div key={s.l} className="clay p-5 md:p-7">
+          {STATS.map((s, i) => (
+            <motion.div 
+              key={s.l} 
+              className="clay p-5 md:p-7 relative overflow-hidden"
+              whileHover={{ scale: 0.96, rotate: i % 2 === 0 ? 2 : -2, transition: { type: 'spring', stiffness: 300, damping: 12 } }}
+            >
+              {i === 1 && (
+                <div className="absolute top-4 right-4 md:top-6 md:right-6 text-moon/30 animate-brain-spin" title="Processing...">
+                  ⚙️
+                </div>
+              )}
               <p className="font-soft text-3xl md:text-5xl font-light text-lavender leading-none tabular-nums">
                 {s.v}
               </p>
@@ -122,7 +167,7 @@ export default function Sleep() {
                 {s.l}
               </p>
               <p className="font-soft text-[10px] text-moon/30 mt-1.5 leading-snug">{s.s}</p>
-            </div>
+            </motion.div>
           ))}
         </section>
 
@@ -192,7 +237,7 @@ export default function Sleep() {
           </p>
         </section>
 
-        <footer className="flex flex-wrap gap-x-8 gap-y-3 font-soft text-[10px] uppercase tracking-[0.3em] text-moon/35">
+        <footer className="flex flex-wrap gap-x-8 gap-y-3 font-soft text-[10px] uppercase tracking-[0.3em] text-moon/35 mt-10">
           <BackLink className="hover:text-lavender transition-colors">&larr; Back</BackLink>
           <Link to="/findings" className="hover:text-lavender transition-colors">
             Case file 01
@@ -201,6 +246,23 @@ export default function Sleep() {
             The issue
           </Link>
         </footer>
+      </motion.div>
+
+      {/* Escape mechanism: Caffeinate button */}
+      <div className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50">
+        <button
+          onClick={() => setCaffeinated(!caffeinated)}
+          className={`flex items-center justify-center gap-2 px-5 py-3 rounded-full shadow-xl transition-all duration-300 ${
+            caffeinated 
+              ? 'bg-lavender text-night font-bold scale-105' 
+              : 'bg-night-deep border border-moon/20 text-moon/60 hover:text-moon/90 hover:border-moon/40'
+          }`}
+        >
+          <span className="text-lg leading-none">{caffeinated ? '⚡' : '☕'}</span>
+          <span className="font-soft text-xs tracking-wider uppercase">
+            {caffeinated ? 'Fully Awake' : 'Splash Water'}
+          </span>
+        </button>
       </div>
 
       {/* The page falls asleep on you. */}
@@ -233,13 +295,13 @@ export default function Sleep() {
 
             <p className="font-serif text-2xl md:text-4xl italic text-moon/80 max-w-lg leading-snug">
               {dozed > 1
-                ? 'Again. It has fallen asleep again.'
-                : 'The page waited. Then it gave up and fell asleep.'}
+                ? 'Again. The page literally cannot stay awake.'
+                : 'The page waited 12 seconds. Then it gave up and fell asleep.'}
             </p>
             <p className="font-soft text-sm text-moon/40 mt-6">
               {dozed > 2
-                ? 'At this point it is just copying you.'
-                : 'Exactly like your syllabus. Move to wake it.'}
+                ? 'At this point it is just mocking you.'
+                : 'Exactly like you do to your syllabus. Move the mouse to wake it up.'}
             </p>
           </motion.div>
         )}

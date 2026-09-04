@@ -118,10 +118,24 @@ h1, h2, h3, h4, h5, h6, .font-serif {
   100% { opacity: 0; transform: translate(28px, -90px) scale(1.25) rotate(10deg) }
 }
 
-.animate-drift   { animation: drift 9s ease-in-out infinite }
-.animate-breathe { animation: breathe 7s ease-in-out infinite }
-.animate-zfloat  { animation: zfloat 4.5s ease-out infinite }
+@keyframes brain-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes nod-off {
+  0%, 100% { transform: rotate(0deg) translateY(0px); }
+  45% { transform: rotate(3deg) translateY(6px); }
+  50% { transform: rotate(5deg) translateY(12px); } /* sudden drop */
+  55% { transform: rotate(-1deg) translateY(-2px); } /* jerk awake */
+}
+
+.animate-drift      { animation: drift 9s ease-in-out infinite }
+.animate-breathe    { animation: breathe 7s ease-in-out infinite }
+.animate-zfloat     { animation: zfloat 4.5s ease-out infinite }
+.animate-brain-spin { animation: brain-spin 30s linear infinite }
+.animate-nod-off    { animation: nod-off 7s ease-in-out infinite }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-drift, .animate-breathe, .animate-zfloat { animation: none }
+  .animate-drift, .animate-breathe, .animate-zfloat, .animate-brain-spin, .animate-nod-off { animation: none }
 }

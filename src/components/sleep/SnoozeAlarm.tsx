@@ -84,22 +84,34 @@ export default function SnoozeAlarm() {
         </AnimatePresence>
 
         <div className="flex flex-col items-center gap-4 mt-6">
-          <button
+          <motion.button
             onClick={snooze}
-            className="font-soft text-sm tracking-[0.25em] uppercase text-night bg-lavender rounded-full px-10 py-4 shadow-lg hover:brightness-110 active:scale-[0.97] transition-all"
+            whileTap={{ 
+              scale: 0.9, 
+              x: [-10, 10, -10, 10, 0], 
+              transition: { duration: 0.4 } 
+            }}
+            className="font-soft text-sm tracking-[0.25em] uppercase text-night bg-lavender rounded-full px-10 py-4 shadow-[0_0_20px_rgba(169,155,232,0.3)] hover:shadow-[0_0_35px_rgba(169,155,232,0.6)] transition-all"
           >
             Snooze
-          </button>
+          </motion.button>
 
           {/* Always present, always just out of reach. */}
-          <button
+          <motion.button
             disabled
             aria-disabled="true"
             title="Not for you"
-            className="font-soft text-[10px] tracking-[0.3em] uppercase text-moon/15 cursor-not-allowed px-6 py-2"
+            className="font-soft text-[10px] tracking-[0.3em] uppercase text-moon/15 cursor-not-allowed px-6 py-2 relative"
+            onHoverStart={(e) => {
+              // Just a little chaotic jump
+              const dx = (Math.random() - 0.5) * 100;
+              const dy = (Math.random() - 0.5) * 40 + 20;
+              e.target.style.transform = `translate(${dx}px, ${dy}px)`;
+            }}
+            style={{ transition: 'transform 0.15s ease-out' }}
           >
             Dismiss
-          </button>
+          </motion.button>
         </div>
 
         <p className="font-soft text-[10px] tracking-[0.25em] uppercase text-moon/35 mt-8 tabular-nums">

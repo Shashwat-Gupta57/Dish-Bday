@@ -13,11 +13,13 @@ export default function AuntyCard() {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <button
+      <motion.button
         onClick={() => setFlipped((f) => !f)}
         aria-label={flipped ? 'Show the front of the card' : 'Show the back of the card'}
-        className="w-full block text-left"
+        className="w-full block text-left outline-none"
         style={{ perspective: '1400px' }}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.95, rotate: [-2, 2, -2, 2, 0], transition: { duration: 0.4 } }}
       >
         <motion.div
           animate={{ rotateY: flipped ? 180 : 0 }}
@@ -104,7 +106,7 @@ export default function AuntyCard() {
             </div>
           </div>
         </motion.div>
-      </button>
+      </motion.button>
     </div>
   );
 }
