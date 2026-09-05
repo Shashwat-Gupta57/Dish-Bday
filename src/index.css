@@ -5,6 +5,19 @@
   --font-sans: "Inter", sans-serif;
   --font-mono: "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --font-soft: "Quicksand", ui-rounded, "Segoe UI", sans-serif;
+  --font-pixel: "Press Start 2P", ui-monospace, monospace;
+
+  /* Arcade — the /arcade page. */
+  /* Cosmos — the /stars page. Antique almanac, not a dashboard. */
+  --color-cosmos: #08080F;
+  --color-cosmos-deep: #12122A;
+  --color-gold: #C9A227;
+  --color-gold-light: #E8CE7A;
+  --color-parchment: #EFE7D2;
+
+  --color-crt: #0B0E14;
+  --color-neon: #4DE1C1;
+  --color-hot: #FF4D6D;
   --font-journal: "Newsreader", "Playfair Display", serif;
   --font-typewriter: "Special Elite", monospace;
 
@@ -194,4 +207,73 @@ h1, h2, h3, h4, h5, h6, .font-serif {
 
 @media (prefers-reduced-motion: reduce) {
   .animate-wobble, .animate-floaty, .animate-rise { animation: none }
+}
+
+/* ------------------------------------------------------------------ Arcade */
+.font-pixel { font-family: var(--font-pixel); }
+.bg-crt { background-color: var(--color-crt); }
+.text-neon { color: var(--color-neon); }
+.bg-neon { background-color: var(--color-neon); }
+.text-hot { color: var(--color-hot); }
+.bg-hot { background-color: var(--color-hot); }
+.border-neon { border-color: var(--color-neon); }
+
+/* CRT scanlines — a fixed overlay, never on the canvas itself. */
+.scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.16) 0px,
+    rgba(0, 0, 0, 0.16) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: multiply;
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1 }
+  92%      { opacity: 1 }
+  94%      { opacity: 0.82 }
+  96%      { opacity: 1 }
+}
+.animate-flicker { animation: flicker 6s linear infinite }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-flicker { animation: none }
+}
+
+/* ------------------------------------------------------------------ Cosmos */
+.bg-cosmos { background-color: var(--color-cosmos); }
+.bg-cosmos-deep { background-color: var(--color-cosmos-deep); }
+.text-gold { color: var(--color-gold); }
+.text-gold-light { color: var(--color-gold-light); }
+.bg-gold { background-color: var(--color-gold); }
+.border-gold { border-color: var(--color-gold); }
+.text-parchment { color: var(--color-parchment); }
+
+/* Gilt panel — a thin double rule, the way an almanac plate is framed. */
+.gilt {
+  border: 1px solid rgba(201, 162, 39, 0.42);
+  box-shadow: inset 0 0 0 4px rgba(8, 8, 15, 1), inset 0 0 0 5px rgba(201, 162, 39, 0.18);
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(201, 162, 39, 0.07), transparent 60%),
+    var(--color-cosmos-deep);
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.15 }
+  50%      { opacity: 0.9 }
+}
+@keyframes spin-slow {
+  to { transform: rotate(360deg) }
+}
+.animate-twinkle { animation: twinkle 4s ease-in-out infinite }
+.animate-spin-slow { animation: spin-slow 90s linear infinite }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-twinkle, .animate-spin-slow { animation: none }
 }

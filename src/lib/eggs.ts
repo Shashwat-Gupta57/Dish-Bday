@@ -134,6 +134,22 @@ export const EGGS: Egg[] = [
     answer:
       'In the Camera Roll Audit, the word “gallery” opens the only page on this site that wants something from you. It is very soft and it is begging.',
   },
+  {
+    id: 'arcade',
+    n: '15',
+    title: 'Aunty Run',
+    riddle: 'The saddest page on this site ends by offering you something else to do.',
+    answer:
+      'At the foot of the complications page, the word “distraction” opens an arcade. Dihhita is the sprite, the ammunition is the periodic table, and after fifteen seconds the chemistry teacher turns up.',
+  },
+  {
+    id: 'stars',
+    n: '16',
+    title: 'The Natal Chart',
+    riddle: 'Every arcade asks for a coin. This one takes something else.',
+    answer:
+      'INSERT COIN, in the corner of the arcade, opens your full natal chart. Mercury, Saturn and Venus have all filed statements. None of them are on his side.',
+  },
 ];
 
 export const TOTAL_EGGS = EGGS.length;
