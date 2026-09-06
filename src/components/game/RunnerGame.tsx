@@ -49,8 +49,11 @@ const IFRAMES = 72;
 
 const BOSS_AT = 15 * 60;
 const BOSS_LATE = 4 * 60;
-const BOSS1_HP = 130;
-const BOSS2_HP = 185;
+// Stages one and two are the runway. Everything interesting — the portals,
+// the rewind, her whole awakened kit — lives in stage three, so the first two
+// are deliberately short rather than a grind that stops you ever seeing it.
+const BOSS1_HP = 78;
+const BOSS2_HP = 105;
 const BOSS3_HP = 300;
 
 /** She awakens when he has beaten her below this in his final form. */
@@ -73,7 +76,7 @@ const LASER_DMG = 15;
 
 /* ---- her awakened arsenal ---- */
 const RASEN_CHARGE = 26;   // spin-up before it leaves her hand
-const RASEN_CD = 46;
+const RASEN_CD = 230;      // ~4s on top of the 3.5s sequence, so it cannot be spammed
 const RASEN_DMG = 13;
 const AMA_CD = 420;        // black flame, burns him over time
 const AMA_DMG = 4;
@@ -84,12 +87,23 @@ const KAMUI_CD = 180;
 
 /** Ability cutscenes. The world holds still while these play. */
 const ACT_SUS = 170;
-const ACT_RASEN = 118;
+const ACT_RASEN = 210;
 const ACT_KAMUI = 150;
 const KICK_DMG = 26;
 const ACT_CHIDORI = 210;
 const CHIDORI_DMG = 34;
 const ACT_REWIND = 430;
+const ACT_PORTAL = 150;
+const ACT_HIRAISHIN = 230;
+
+/* ---- kunai & the Hiraishin combo ---- */
+const KUNAI_CD = 26;
+const KUNAI_DMG = 14;
+const PHASE_DUR = 60;      // how long the marked kunai stays intangible
+const COMBO_WINDOW = 15;   // ticks between the two keys to count as together
+const HIRAISHIN_DMG = 55;
+const DOWN_HIRAISHIN = 45; // ~750ms flat on his back
+const DOWN_KAMUI = 96;
 const SEALS = ['TIGER', 'RAM', 'SNAKE', 'BOAR', 'DOG', 'MONKEY', 'BIRD'];
 
 /**
@@ -217,7 +231,11 @@ interface Game {
   susT: number; susCd: number;
   kamuiT: number; kamuiCd: number;
   flying: boolean; flyHeld: boolean;
-  act: { kind: 'sus' | 'rasen' | 'kamui' | 'chidori' | 'rewind'; t: number } | null;
+  act: { kind: 'sus' | 'rasen' | 'kamui' | 'chidori' | 'rewind' | 'portal' | 'hiraishin'; t: number } | null;
+  actRot: number;
+  kunai: { x: number; y: number; vy: number; t: number; phase: number } | null;
+  kunaiCd: number; lastJump: number; lastRasen: number; comboReady: boolean;
+  bossDown: number; bossAir: number; pendingDomain: number;
   kamuiBlocked: boolean;
   actCam: number; eyeBlood: number;
   bossX: number; bossY: number; bossBob: number; bossFlash: number;
@@ -259,7 +277,9 @@ function fresh(): Game {
     susT: 0, susCd: 0,
     kamuiT: 0, kamuiCd: 0,
     flying: false, flyHeld: false,
-    act: null, actCam: 1, eyeBlood: 0, kamuiBlocked: false,
+    act: null, actCam: 1, actRot: 0, eyeBlood: 0, kamuiBlocked: false,
+    kunai: null, kunaiCd: 0, lastJump: -999, lastRasen: -999, comboReady: false,
+    bossDown: 0, bossAir: 0, pendingDomain: 0,
     bossX: W + 160, bossY: GROUND - 96, bossBob: 0, bossFlash: 0,
     atkT: 90, beam: 0, telegraph: 0, beamTick: 0,
     melee: null, meleeHit: false, throwT: 0, step: 0,
@@ -409,6 +429,25 @@ export default function RunnerGame() {
     s.act = { kind: 'rasen', t: 0 };
   }, []);
 
+  /** B: a kunai. On its own it is a cheap poke; marked, it is a doorway. */
+  const throwKunai = useCallback(() => {
+    const s = g.current;
+    // Available from the start — it is a thrown knife, not a doujutsu. The
+    // combo it enables still needs the Rasengan, and so still needs awakening.
+    if (s.over || s.dying || !s.running) return;
+    if (s.kunaiCd > 0 || s.kunai || s.act) return;
+    s.kunaiCd = KUNAI_CD;
+    s.kunai = { x: s.herHeadX + 40, y: s.herHeadY + 30, vy: 0, t: 0, phase: 0 };
+  }, []);
+
+  /** N: mark it. Three prongs, and it stops being solid. */
+  const phaseKunai = useCallback(() => {
+    const s = g.current;
+    if (!s.kunai || s.kunai.phase > 0 || s.act) return;
+    s.kunai.phase = PHASE_DUR;
+    s.flash = 6;
+  }, []);
+
   /** C: a giant of chakra stands over her and eats everything for a while. */
   const susanoo = useCallback(() => {
     const s = g.current;
@@ -530,15 +569,33 @@ export default function RunnerGame() {
       if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
         e.preventDefault();
         if (busy()) return;
-        if (g.current.over || g.current.phase === 'won') restart(); else jump();
+        const s = g.current;
+        s.lastJump = s.t;
+        if (s.comboReady && s.t - s.lastRasen <= COMBO_WINDOW) {
+          s.act = { kind: 'hiraishin', t: 0 };
+          s.comboReady = false;
+          return;
+        }
+        if (s.over || s.phase === 'won') restart(); else jump();
       }
       if (e.code === 'KeyX' || e.code === 'ArrowRight') {
         e.preventDefault();
-        if (!busy()) { if (g.current.awakened) rasengan(); else shoot(); }
+        if (busy()) return;
+        const s = g.current;
+        s.lastRasen = s.t;
+        // Jump + Rasengan together, while a marked kunai is inside him.
+        if (s.comboReady && s.t - s.lastJump <= COMBO_WINDOW) {
+          s.act = { kind: 'hiraishin', t: 0 };
+          s.comboReady = false;
+          return;
+        }
+        if (s.awakened) rasengan(); else shoot();
       }
       if (e.code === 'KeyZ') { e.preventDefault(); if (!busy()) laser(); }
       if (e.code === 'KeyC') { e.preventDefault(); if (!busy()) susanoo(); }
       if (e.code === 'KeyV') { e.preventDefault(); if (!busy()) kamui(); }
+      if (e.code === 'KeyB') { e.preventDefault(); if (!busy()) throwKunai(); }
+      if (e.code === 'KeyN') { e.preventDefault(); if (!busy()) phaseKunai(); }
       if (e.code === 'ArrowUp' || e.code === 'KeyW') { g.current.flyHeld = true; }
     };
     const onKeyUp = (e: KeyboardEvent) => {
@@ -1126,15 +1183,68 @@ export default function RunnerGame() {
             s.act = null; s.actCam = 1;
           }
         } else if (a.kind === 'rasen') {
-          s.actCam += (1.28 - s.actCam) * 0.06;
+          s.actCam += (1.24 - s.actCam) * 0.06;
+          // Camera swings around her while she closes the distance.
+          if (a.t > 92) s.actRot = Math.sin((a.t - 92) * 0.028) * 0.1;
           if (a.t === 92) { s.shake = 10; s.flash = 8; }
+          if (a.t === 132) {
+            // Contact. He eats the whole thing at point-blank range.
+            s.hitstop = 10; s.shake = 40; s.flash = 22;
+            if (s.phase === 'boss') {
+              // A recoil, not a knockdown. He is shoved back hard and keeps
+              // fighting — only Kamui and Hiraishin put him on the floor.
+              hurtBoss(RASEN_DMG + 9, true, 'RASENGAN');
+              s.bossKnock = -86;
+              s.bossHurt = 26;
+              s.bossVy = -7;
+            }
+            for (let i = 0; i < 40; i += 1) {
+              s.sparks.push({
+                x: s.bossX - 30, y: Math.min(GROUND - 20, s.y - 60),
+                vx: (Math.random() - 0.15) * 13, vy: (Math.random() - 0.5) * 13,
+                life: 36, color: '#9AC8FF',
+              });
+            }
+          }
           if (a.t >= ACT_RASEN) {
-            // Same anchor the sequence draws it at, so it leaves her hand
-            // from exactly where you watched her build it.
-            s.rasengans.push({ x: s.herHeadX + 46, y: s.herHeadY + 34, t: 0 });
-            s.rasenCd = RASEN_CD; s.shake = 12;
+            s.rasenCd = RASEN_CD;
+            s.act = null; s.actCam = 1; s.actRot = 0;
+          }
+        } else if (a.kind === 'hiraishin') {
+          // Flying Raijin. She is simply already there.
+          s.actCam += (1.2 - s.actCam) * 0.07;
+          if (a.t === 26) { s.flash = 20; s.shake = 18; }
+          if (a.t === 96) {
+            s.hitstop = 14; s.shake = 52; s.flash = 30;
+            if (s.phase === 'boss') {
+              hurtBoss(HIRAISHIN_DMG, true, 'HIRAISHIN');
+              s.bossKnock = -90;
+              // Driven straight into the ground, so almost no air time.
+              s.bossDown = DOWN_HIRAISHIN; s.bossAir = 8; s.bossVy = 6;
+            }
+            s.kunai = null;
+            for (let i = 0; i < 60; i += 1) {
+              s.sparks.push({
+                x: s.bossX, y: GROUND + s.bossOff - 30,
+                vx: (Math.random() - 0.5) * 16, vy: -Math.random() * 13,
+                life: 44, color: i % 2 ? '#FFD34D' : '#9AC8FF',
+              });
+            }
+          }
+          if (a.t >= ACT_HIRAISHIN) {
+            s.rasenCd = RASEN_CD; s.kunaiCd = KUNAI_CD;
             s.act = null; s.actCam = 1;
           }
+        } else if (a.kind === 'portal') {
+          // Doctor Strange doorway. The whole arena goes through it.
+          s.actCam = 1;
+          if (a.t === 96) {
+            s.domain = s.pendingDomain;
+            s.domainFade = 60;
+            s.gravMul = DOMAINS[s.domain].grav;
+            s.flash = 26; s.shake = 30;
+          }
+          if (a.t >= ACT_PORTAL) { s.act = null; }
         } else if (a.kind === 'rewind') {
           // No push-in at all — the whole set piece has to be visible.
           s.actCam = 1;
@@ -1165,6 +1275,8 @@ export default function RunnerGame() {
             if (s.phase === 'boss' && !s.kamuiBlocked) {
               hurtBoss(KICK_DMG, true, 'KONOHA SENPUU');
               s.bossKnock = -46; s.bossHurt = 26;
+              // Launched off his feet, then flat, then back up.
+              s.bossDown = DOWN_KAMUI; s.bossAir = 30; s.bossVy = -12;
             } else if (s.kamuiBlocked) {
               s.pops.push({ x: s.bossX - 30, y: GROUND + s.bossOff - 190, life: 60, text: 'BLOCKED', color: '#FFD34D' });
             }
@@ -1278,6 +1390,34 @@ export default function RunnerGame() {
           s.taunt = 'MAIN BEST CHEMISTRY TEACHER HOON.'; s.tauntT = 150;
         }
 
+        // ---- kunai ----
+        if (s.kunaiCd > 0) s.kunaiCd -= 1;
+        if (s.kunai) {
+          const k = s.kunai;
+          k.t += 1;
+          k.x += 11;
+          if (k.phase > 0) k.phase -= 1;
+          else k.vy += 0.16;
+          k.y += k.vy;
+
+          const bxk = s.bossX;
+          const topk = GROUND + s.bossOff - bodyH(s.bossStage) - headR(s.bossStage);
+          const inside = Math.abs(k.x - bxk) < 46 && k.y > topk && k.y < GROUND + s.bossOff;
+
+          // Marked and overlapping him: this is the window.
+          s.comboReady = k.phase > 0 && inside && s.phase === 'boss';
+
+          if (inside && k.phase === 0 && s.phase === 'boss') {
+            hurtBoss(KUNAI_DMG);
+            s.kunai = null;
+          } else if (k.x > W + 60 || k.y > GROUND + 20) {
+            s.kunai = null;
+            s.comboReady = false;
+          }
+        } else {
+          s.comboReady = false;
+        }
+
         // ---- her arsenal ----
         if (s.rasenCd > 0) s.rasenCd -= 1;
         if (s.amaCd > 0) s.amaCd -= 1;
@@ -1368,6 +1508,33 @@ export default function RunnerGame() {
           s.step += 1;
           if (s.throwT > 0) s.throwT -= 1;
           if (s.bossDodgeCd > 0) s.bossDodgeCd -= 1;
+          // Knocked down: launched, tumbling, then he hits the floor and has
+          // to push himself back up.
+          if (s.bossDown > 0) {
+            s.bossDown -= 1;
+            s.dodgeKind = null; s.dodgeT = 0;
+            if (s.bossAir > 0) {
+              s.bossAir -= 1;
+              s.bossVy += BOSS_GRAV;
+              s.bossOff += s.bossVy;
+              s.bossX += 3.4;                      // carried backwards by the hit
+              if (s.bossOff >= 0) {
+                // Impact with the ground.
+                s.bossOff = 0; s.bossVy = 0; s.bossAir = 0;
+                s.shake = 26; s.hitstop = 4;
+                for (let i = 0; i < 16; i += 1) {
+                  s.sparks.push({
+                    x: s.bossX, y: GROUND,
+                    vx: (Math.random() - 0.5) * 8, vy: -Math.random() * 5,
+                    life: 24, color: '#C08A5A',
+                  });
+                }
+              }
+            } else {
+              s.bossOff = 0; s.bossVy = 0;
+            }
+            if (s.bossDown === 0) { s.bossHurt = 0; s.taunt = null; }
+          }
           if (s3) s.stage3T += 1;
 
           // Kirigakure exactly twice per fight: once at the midpoint, once when
@@ -1462,7 +1629,7 @@ export default function RunnerGame() {
            */
           const busyAttacking = s.melee || s.beam > 0 || s.telegraph > 0
             || s.bLaserTel > 0 || s.bLaserFire > 0 || s.bossHurt > 0;
-          if (!busyAttacking && s.bossDodgeCd <= 0) {
+          if (!busyAttacking && s.bossDodgeCd <= 0 && s.bossDown === 0) {
             const reach = s3 ? 400 : s2 ? 340 : 270;
             const bodyTop = feetY - bodyH(s.bossStage) - headR(s.bossStage);
             // Count the burst, not just the nearest shot — holding fire sends a
@@ -1548,7 +1715,11 @@ export default function RunnerGame() {
             } else if (s.melee.stage === 'swing') {
               if (s.melee.t > 5 && s.melee.t < 15 && !s.meleeHit) {
                 if (Math.abs(s.melee.x - PLAYER_X) < 104 && s.y > GROUND - 78) {
-                  s.meleeHit = true; s.hitstop = 8; s.shake = 30; damage(s2 ? 24 : 18);
+                  s.meleeHit = true; s.hitstop = 8; s.shake = 30;
+                  damage(s2 ? 24 : 18);
+                  // damage() can start the awakening, which clears s.melee. Bail
+                  // out rather than dereferencing it on the next line.
+                  if (!s.melee) return;
                 }
               }
               if (s.melee.t > 22) { s.melee.stage = 'out'; s.melee.t = 0; }
@@ -1580,7 +1751,8 @@ export default function RunnerGame() {
           // and you never see the move that was building.
           const idle = !s.melee && s.beam === 0 && s.telegraph === 0
             && s.bLaserFire === 0 && s.bLaserTel === 0
-            && s.punchT === 0 && s.punchGo === 0 && s.trigT === 0 && s.tensei === 0;
+            && s.punchT === 0 && s.punchGo === 0 && s.trigT === 0 && s.tensei === 0
+            && s.bossDown === 0;
           if (s.atkT <= 0 && s.bossX <= targetX + 4 && idle) {
             /**
              * Weighted pick, not a threshold cascade.
@@ -1646,12 +1818,14 @@ export default function RunnerGame() {
                 break;
               }
 
-              case 'domain':
-                s.domain = 1 + Math.floor(Math.random() * (DOMAINS.length - 1));
-                s.domainFade = 60;
-                s.gravMul = DOMAINS[s.domain].grav;
-                s.shake = 26; s.flash = 14;
+              case 'domain': {
+                let next = s.domain;
+                while (next === s.domain) next = 1 + Math.floor(Math.random() * (DOMAINS.length - 1));
+                s.pendingDomain = next;
+                s.act = { kind: 'portal', t: 0 };
+                s.shake = 16;
                 break;
+              }
               case 'spikes':
                 s.spikeTel = 46; s.spikeX = W - 190;
                 break;
@@ -1717,6 +1891,7 @@ export default function RunnerGame() {
             if (sp.t > 3 && sp.t < 30 && Math.abs(PLAYER_X - sp.x) < 26
                 && s.y > GROUND - 62 && s.iframes === 0) {
               damage(16);
+              if (s.phase !== 'boss') return;
             }
           }
 
@@ -1791,7 +1966,145 @@ export default function RunnerGame() {
             }
           }
 
-          // ---- shinra tensei: a repulsion front off his palm ----
+          // ---- kunai, plain or marked ----
+      if (s.kunai) {
+        const k = s.kunai;
+        ctx.save();
+        ctx.translate(k.x, k.y);
+        ctx.rotate(Math.atan2(k.vy, 11));
+        if (k.phase > 0) {
+          // Marked: three prongs, a seal tag, and it stops being solid.
+          const gk = ctx.createRadialGradient(0, 0, 0, 0, 0, 46);
+          gk.addColorStop(0, 'rgba(255,211,77,0.9)');
+          gk.addColorStop(1, 'rgba(255,211,77,0)');
+          ctx.fillStyle = gk;
+          ctx.beginPath(); ctx.arc(0, 0, 46, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = '#FFF3CC'; ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(-16, 0); ctx.lineTo(16, 0);
+          ctx.moveTo(6, 0); ctx.lineTo(20, -11);
+          ctx.moveTo(6, 0); ctx.lineTo(20, 11);
+          ctx.stroke();
+          // Paper tag fluttering off the ring.
+          ctx.fillStyle = '#F3E7C8';
+          ctx.save();
+          ctx.translate(-20, 0); ctx.rotate(Math.sin(k.t * 0.3) * 0.4);
+          ctx.fillRect(-16, -6, 16, 12);
+          ctx.restore();
+        } else {
+          // Bigger, solid, with a motion streak — the old one was a few grey
+          // pixels crossing the screen in a second and was simply not visible.
+          ctx.strokeStyle = 'rgba(220,235,250,0.55)';
+          ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.moveTo(-56, 0); ctx.lineTo(-18, 0); ctx.stroke();
+          ctx.shadowColor = 'rgba(0,0,0,0.9)';
+          ctx.shadowBlur = 8;
+          ctx.fillStyle = '#EFF6FF';
+          ctx.strokeStyle = '#1B2430';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(-20, 0); ctx.lineTo(8, -9); ctx.lineTo(26, 0); ctx.lineTo(8, 9);
+          ctx.closePath(); ctx.fill(); ctx.stroke();
+          // Ring at the butt of the handle.
+          ctx.beginPath(); ctx.arc(-24, 0, 5, 0, Math.PI * 2); ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      // The combo prompt, so the timing is teachable rather than secret.
+      if (s.comboReady) {
+        ctx.fillStyle = Math.floor(s.t / 5) % 2 ? '#FFD34D' : '#FFFFFF';
+        ctx.font = '13px "Press Start 2P", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('NOW — JUMP + X', s.bossX - 40, GROUND + s.bossOff - bodyH(s.bossStage) - 84);
+      }
+
+      // ---- hiraishin ----
+      if (s.act?.kind === 'hiraishin') {
+        const a = s.act;
+        if (a.t < 30) {
+          // She leaves a flash where she was standing.
+          const k3 = 1 - a.t / 30;
+          ctx.strokeStyle = 'rgba(255,211,77,' + k3 + ')';
+          ctx.lineWidth = 5;
+          for (let i = 0; i < 6; i += 1) {
+            const ang = (i / 6) * Math.PI * 2;
+            ctx.beginPath();
+            ctx.moveTo(PLAYER_X + Math.cos(ang) * 20, GROUND - 60 + Math.sin(ang) * 20);
+            ctx.lineTo(PLAYER_X + Math.cos(ang) * (90 * (1 - k3) + 20), GROUND - 60 + Math.sin(ang) * (90 * (1 - k3) + 20));
+            ctx.stroke();
+          }
+        }
+        if (a.t >= 20 && a.t < 100) {
+          // Rasengan held over her head on the way down. Position is derived
+          // here rather than read from px/py, which are declared further down.
+          const hpx = s.bossX - 10;
+          const hpy = a.t < 96
+            ? GROUND - 280 + Math.max(0, a.t - 26) * 2.2
+            : GROUND - bodyH(s.bossStage) - 40;
+          const rx2 = hpx + 30, ry2 = hpy + 30;
+          const gr4 = ctx.createRadialGradient(rx2, ry2, 0, rx2, ry2, 62);
+          gr4.addColorStop(0, 'rgba(255,255,255,1)');
+          gr4.addColorStop(0.35, 'rgba(120,190,255,0.95)');
+          gr4.addColorStop(1, 'rgba(90,140,255,0)');
+          ctx.fillStyle = gr4;
+          ctx.beginPath(); ctx.arc(rx2, ry2, 62, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = 'rgba(220,240,255,0.9)'; ctx.lineWidth = 3;
+          for (let i = 0; i < 3; i += 1) {
+            ctx.beginPath();
+            ctx.ellipse(rx2, ry2, 30, 11, a.t * 0.5 + (i * Math.PI) / 3, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+        }
+        if (a.t >= 96 && a.t < 160) {
+          ctx.fillStyle = '#FFD34D';
+          ctx.font = '17px "Press Start 2P", monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText('HIRAISHIN', W / 2, 100);
+          ctx.font = '10px "Press Start 2P", monospace';
+          ctx.fillText('FLYING RAIJIN — SECOND STEP', W / 2, 126);
+        }
+      }
+
+      // ---- the portal ----
+      if (s.act?.kind === 'portal') {
+        const a = s.act;
+        const cx6 = W / 2, cy6 = H / 2 - 20;
+        // Opens to full screen, holds, closes.
+        const grow = a.t < 96 ? Math.min(1, a.t / 78) : Math.max(0, 1 - (a.t - 96) / 46);
+        const R = grow * 560;
+        if (R > 4) {
+          const nd = DOMAINS[a.t < 96 ? s.pendingDomain : s.domain];
+          // The other side, seen through the opening.
+          ctx.save();
+          ctx.beginPath(); ctx.arc(cx6, cy6, R, 0, Math.PI * 2); ctx.clip();
+          ctx.fillStyle = nd.sky;
+          ctx.fillRect(0, 0, W, H);
+          ctx.fillStyle = nd.hill;
+          ctx.fillRect(0, 0, W, H);
+          ctx.restore();
+          // Sparking rim.
+          ctx.strokeStyle = '#FF8A2B';
+          ctx.lineWidth = 6;
+          ctx.beginPath(); ctx.arc(cx6, cy6, R, 0, Math.PI * 2); ctx.stroke();
+          ctx.lineWidth = 3;
+          for (let i = 0; i < 46; i += 1) {
+            const ang = (i / 46) * Math.PI * 2 + s.t * 0.05;
+            const jag = 12 + Math.random() * 26;
+            ctx.strokeStyle = 'rgba(255,' + (130 + Math.random() * 90 | 0) + ',43,' + (0.4 + Math.random() * 0.6) + ')';
+            ctx.beginPath();
+            ctx.moveTo(cx6 + Math.cos(ang) * R, cy6 + Math.sin(ang) * R);
+            ctx.lineTo(cx6 + Math.cos(ang + 0.05) * (R + jag), cy6 + Math.sin(ang + 0.05) * (R + jag));
+            ctx.stroke();
+          }
+          ctx.fillStyle = '#FF8A2B';
+          ctx.font = '13px "Press Start 2P", monospace';
+          ctx.textAlign = 'center';
+          if (a.t < 90) ctx.fillText('DIMENSION SHIFT', cx6, 92);
+        }
+      }
+
+      // ---- shinra tensei: a repulsion front off his palm ----
       if (s.tensei > 0) {
         const bxx = s.bossX, byy = GROUND + s.bossOff - bodyH(3) * 0.55;
         if (s.tensei > 22) {
@@ -2024,11 +2337,17 @@ export default function RunnerGame() {
       ctx.save();
       if (s.shake > 0) ctx.translate((Math.random() - 0.5) * s.shake, (Math.random() - 0.5) * s.shake);
       if (s.act && s.actCam > 1.02) {
-        const fx = s.act.kind === 'kamui' || s.act.kind === 'chidori'
+        const k2 = s.act.kind;
+        const fx = k2 === 'kamui' || k2 === 'chidori' || k2 === 'hiraishin'
           ? s.bossX - 60
-          : PLAYER_X + 60;
+          : k2 === 'rasen' && s.act.t > 92
+            // Follow her in, then settle on the impact.
+            ? PLAYER_X + (s.bossX - 120 - PLAYER_X) * Math.min(1, (s.act.t - 92) / 40)
+            : PLAYER_X + 60;
         ctx.translate(W / 2, H / 2);
         ctx.scale(s.actCam, s.actCam);
+        // A slow swing around the action rather than a locked-off shot.
+        if (s.actRot) ctx.rotate(s.actRot);
         ctx.translate(-fx, -(GROUND - 90));
       }
       if (cineBeat) {
@@ -2177,12 +2496,29 @@ export default function RunnerGame() {
           ctx.fillStyle = '#FFC94D';
           ctx.font = '7px "Press Start 2P", monospace';
           ctx.fillText('EXTRA LIFE', cx, cy - 40);
-        } else if (e.kind === 'fulki') { ctx.font = '24px serif'; ctx.fillText('🍛', e.x + e.w / 2, e.y + e.h); }
-        else if (e.kind === 'zzz') {
-          ctx.fillStyle = 'rgba(169,155,232,0.9)';
-          ctx.font = 'bold 26px "Press Start 2P", monospace';
-          ctx.fillText('z', e.x + e.w / 2, e.y + e.h);
-        } else { ctx.font = e.kind === 'stack' ? '46px serif' : '30px serif'; ctx.fillText('📚', e.x + e.w / 2, e.y + e.h); }
+        } else {
+          // No discs or halos — just a hard shadow behind the glyph so it reads
+          // against a bright photo without a blob stuck to it.
+          const ecx2 = e.x + e.w / 2;
+          const ecy2 = e.y + e.h;
+          ctx.save();
+          ctx.shadowColor = 'rgba(0,0,0,0.95)';
+          ctx.shadowBlur = 10;
+          if (e.kind === 'zzz') {
+            ctx.fillStyle = '#CFC4FF';
+            ctx.font = 'bold 30px \"Press Start 2P\", monospace';
+            ctx.fillText('z', ecx2, ecy2);
+            ctx.fillText('z', ecx2, ecy2);
+          } else {
+            ctx.font = e.kind === 'stack' ? '52px serif' : e.kind === 'fulki' ? '32px serif' : '36px serif';
+            const glyph = e.kind === 'fulki' ? '🍛' : '📚';
+            // Drawn twice so the shadow stacks and the emoji gains contrast.
+            ctx.fillText(glyph, ecx2, ecy2);
+            ctx.shadowBlur = 4;
+            ctx.fillText(glyph, ecx2, ecy2);
+          }
+          ctx.restore();
+        }
       }
 
       if (s.telegraph > 0) {
@@ -2278,6 +2614,9 @@ export default function RunnerGame() {
         } else if (s.bLaserTel > 0) pose = 'charge';
         else if (s.bLaserFire > 0) pose = 'blast';
         else if (s.telegraph > 0 || s.beam > 0) pose = 'lecture';
+        else if (s.bossAir > 0) { pose = 'backflip'; poseT = s.bossAir * 0.7; }
+        else if (s.bossDown > 26) { pose = 'prone'; poseT = s.step; }
+        else if (s.bossDown > 0) { pose = 'pushup'; poseT = (26 - s.bossDown) * 2.4; }
         else if (s.tensei > 0) pose = 'lecture';
         else if (s.punchT > 0 || s.punchGo > 0) pose = s.punchGo > 0 ? 'thrust' : 'chidori';
         else if (s.trigT > 0) pose = 'swing';
@@ -2334,6 +2673,13 @@ export default function RunnerGame() {
           }
         }
 
+        if (s.bossDown > 0 && s.bossAir === 0) {
+          // Dust settling around him where he landed.
+          ctx.fillStyle = 'rgba(190,150,110,' + Math.min(0.35, s.bossDown / 200) + ')';
+          ctx.beginPath();
+          ctx.ellipse(bx, GROUND + 2, 76, 9, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
         const rig = drawStickman(bx, feetY, s.bossStage, pose, poseT, flash, s.bossHurt, {
           img: bossImg.current, crop: BOSS_FACE, col: s3d ? '#FFD34D' : '#FF4D6D',
           ascended: s3d, bleed: s3d ? s.bleed : 0,
@@ -2450,8 +2796,22 @@ export default function RunnerGame() {
         : PLAYER_X + s.push;
       // Kamui puts her behind him, above his head, for the kick.
       const kamuiActive = s.act?.kind === 'kamui' && s.act.t >= 40 && s.act.t < 130;
-      const px = kamuiActive ? s.bossX + 54 : cineBeat ? cinePx : PLAYER_X + s.push;
+      // She charges in with the rasengan rather than lobbing it.
+      const rasenAct = s.act?.kind === 'rasen' ? s.act.t : -1;
+      const chargeK = rasenAct >= 92 ? Math.min(1, (rasenAct - 92) / 40) : 0;
+      const hiraishin = s.act?.kind === 'hiraishin' ? s.act.t : -1;
+
+      let px = PLAYER_X + s.push;
+      if (kamuiActive) px = s.bossX + 54;
+      else if (chargeK > 0) px = PLAYER_X + s.push + (s.bossX - 96 - PLAYER_X - s.push) * chargeK;
+      else if (hiraishin >= 26) px = s.bossX - 10;
+      else if (cineBeat) px = cinePx;
       const py = kamuiActive ? GROUND + s.bossOff - bodyH(s.bossStage) - 26
+        // Hiraishin: she arrives above him and comes down through him.
+        : hiraishin >= 26
+          ? (hiraishin < 96
+              ? GROUND - 280 + (hiraishin - 26) * 2.2
+              : GROUND - bodyH(s.bossStage) - 40)
         : cineBeat ? GROUND - PLAYER_R : s.y - PLAYER_R;
       const squash = Math.max(0.82, Math.min(1.18, 1 - s.vy * 0.012));
       const blink = s.iframes > 0 && Math.floor(s.iframes / 4) % 2 === 0;
@@ -2474,7 +2834,9 @@ export default function RunnerGame() {
           ? (act.kind === 'sus'
               ? (act.t < 90 ? 'seals' : act.t < 130 ? 'eyegrip' : 'stance')
               : act.kind === 'rasen'
-                ? (act.t < 26 ? 'cup' : act.t < 92 ? 'rasenform' : 'thrust')
+                ? (act.t < 26 ? 'cup' : act.t < 92 ? 'rasenform' : act.t < 132 ? 'run' : 'thrust')
+              : act.kind === 'hiraishin'
+                ? (act.t < 26 ? 'cup' : act.t < 96 ? 'thrust' : 'stance')
                 : (act.t < 40 ? 'stance' : act.t < 120 ? 'spinkick' : 'stance'))
           : cineBeat ? (beatAt(cineScript(s.cineKind), s.cine).pose)
           : s.rasenT > 0 ? 'throw'
@@ -2492,7 +2854,12 @@ export default function RunnerGame() {
           ctx.fillStyle = gl;
           ctx.beginPath(); ctx.arc(px, py - 30, 78, 0, Math.PI * 2); ctx.fill();
         }
-        const herRig = drawStickman(px, kamuiActive ? py + 118 : cineBeat ? GROUND : s.y, 1, herPose, herT, false,
+        const herFeet = kamuiActive || hiraishin >= 26 ? py + 118
+          // She closes at whatever height she was at. If she was flying, she
+          // flies into him rather than being dumped onto the floor first.
+          : chargeK > 0 ? s.y
+          : cineBeat ? GROUND : s.y;
+        const herRig = drawStickman(px, herFeet, 1, herPose, herT, false,
           s.hurt > 0 ? s.hurt * 0.6 : 0, {
             // She faces him. The rig is authored facing left, so she mirrors.
             img: eyeImgs.current[s.eyeStage] ?? avatar.current,
@@ -3603,10 +3970,22 @@ export default function RunnerGame() {
         </div>
       )}
 
+      {/* The kunai is available from the start; the combo it feeds is not. */}
+      <div className="flex gap-2 md:gap-3 mt-2">
+        <button onPointerDown={(e) => { e.preventDefault(); if (!busy()) throwKunai(); }}
+          className="flex-1 font-pixel text-[9px] text-[#D9E6F2] border-2 border-[#D9E6F2]/40 py-4 active:bg-[#D9E6F2] active:text-crt transition-colors">
+          KUNAI
+        </button>
+        <button onPointerDown={(e) => { e.preventDefault(); if (!busy()) phaseKunai(); }}
+          className="flex-1 font-pixel text-[9px] text-[#FFD34D] border-2 border-[#FFD34D]/40 py-4 active:bg-[#FFD34D] active:text-crt transition-colors">
+          MARK IT
+        </button>
+      </div>
+
       <p className="font-pixel text-[8px] text-neon/35 mt-4 text-center leading-relaxed">
         {hud.awake
-          ? 'X = RASENGAN · Z = AMATERASU · C = SUSANOO · V = KAMUI · HOLD W = FLY'
-          : 'SPACE = JUMP (TWICE = DOUBLE) · X = FIRE · Z = LASER'}
+          ? 'X RASENGAN · Z AMATERASU · C SUSANOO · V KAMUI · B KUNAI · N MARK · JUMP+X = HIRAISHIN'
+          : 'SPACE = JUMP · X = FIRE · Z = LASER · B = KUNAI · N = MARK IT'}
         <br />
         THE LECTURE ONLY HURTS ON THE GROUND. THE STICK ONLY HURTS ON THE GROUND.
       </p>
