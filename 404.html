@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Private Archive</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <script>
+      // GitHub Pages has no rewrite rule, so a deep link lands here. Bounce it
+      // back to the app and let the router take the path from the query.
+      sessionStorage.setItem('redirect', location.pathname + location.search);
+      location.replace('/');
+    </script>
+  </head>
+  <body></body>
+</html>
