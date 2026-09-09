@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useLocation, useNavigationType } from 'react-router-dom';
+import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import { useSmoothScroll } from '../lib/SmoothScroll';
 
 /**
@@ -21,8 +21,21 @@ import { useSmoothScroll } from '../lib/SmoothScroll';
 export default function ScrollManager() {
   const { pathname } = useLocation();
   const navigationType = useNavigationType();
+  const navigate = useNavigate();
   const { scrollTo, resize } = useSmoothScroll();
   const saved = useRef(new Map<string, number>());
+
+  // A deep link on a host with no rewrite rule lands on 404.html, which stashes
+  // the path and bounces here. Put it back.
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem('redirect');
+      if (saved) {
+        sessionStorage.removeItem('redirect');
+        if (saved !== window.location.pathname) navigate(saved, { replace: true });
+      }
+    } catch { /* storage blocked */ }
+  }, [navigate]);
 
   // The browser's own restoration fights ours on reload; take it over.
   useEffect(() => {

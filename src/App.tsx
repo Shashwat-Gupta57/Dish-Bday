@@ -3,60 +3,31 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from 'sonner';
-import Home from './pages/Home';
-import Legal from './pages/Legal';
-import Reminder from './pages/Reminder';
-import Report from './pages/Report';
-import Complications from './pages/Complications';
-import Sleep from './pages/Sleep';
-import Please from './pages/Please';
-import Arcade from './pages/Arcade';
-import Stars from './pages/Stars';
-import Grain from './components/Grain';
-import StampCard from './components/StampCard';
-import ScrollManager from './components/ScrollManager';
-import { EggProvider } from './lib/EggContext';
-import { EditorsCutProvider } from './lib/EditorsCut';
-import { SmoothScrollProvider } from './lib/SmoothScroll';
+import { Suspense, lazy, useState } from 'react';
+import AccessGate from './components/AccessGate';
+import { isOpen, reveal } from './lib/access';
+
+/**
+ * The gate is the whole entry point.
+ *
+ * The site is behind a dynamic import, so its chunk — every page, every joke,
+ * every name — is not in the file a visitor downloads and cannot be found by
+ * searching it. It is only fetched once the key verifies.
+ */
+const Site = lazy(() => import('./Site'));
 
 export default function App() {
+  const [open, setOpen] = useState(() => {
+    const already = isOpen();
+    if (already) reveal();
+    return already;
+  });
+
+  if (!open) return <AccessGate onOpen={() => setOpen(true)} />;
+
   return (
-    <>
-      <Toaster
-        position="bottom-right"
-        toastOptions={{
-          className:
-            'font-serif text-sm bg-editorial-black text-editorial-cream border-editorial-accent shadow-2xl',
-        }}
-      />
-      <BrowserRouter>
-        {/* Providers sit inside the router so the stamp card can link, and so a
-            visit to /legal can stamp itself. */}
-        <SmoothScrollProvider>
-          <EggProvider>
-            <EditorsCutProvider>
-              <ScrollManager />
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/legal" element={<Legal />} />
-                <Route path="/reminder" element={<Reminder />} />
-                <Route path="/findings" element={<Report />} />
-                <Route path="/complications" element={<Complications />} />
-                <Route path="/sleep" element={<Sleep />} />
-                <Route path="/please" element={<Please />} />
-                <Route path="/arcade" element={<Arcade />} />
-                <Route path="/stars" element={<Stars />} />
-                {/* A typo in the URL used to render a blank white page. */}
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-              <StampCard />
-            </EditorsCutProvider>
-          </EggProvider>
-        </SmoothScrollProvider>
-      </BrowserRouter>
-      <Grain />
-    </>
+    <Suspense fallback={<div className="fixed inset-0 bg-[#08080B]" />}>
+      <Site />
+    </Suspense>
   );
 }
