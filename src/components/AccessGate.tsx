@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import {
-  LEN_ONE, LEN_TWO, QUESTION, HINT, verifyOne, verifyTwo, remember, reveal,
+  LEN_ONE, LEN_TWO, QUESTION, HINT, verifyOne, verifyTwo, reveal,
 } from '../lib/access';
 
 /**
@@ -53,7 +53,6 @@ export default function AccessGate({ onOpen }: { onOpen: () => void }) {
             setBusy(false);
           } else fail();
         } else if (verifyTwo(value)) {
-          remember();
           reveal();
           setOpened(true);
           window.setTimeout(onOpen, 4200);

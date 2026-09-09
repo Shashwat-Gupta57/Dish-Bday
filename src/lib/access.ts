@@ -80,20 +80,16 @@ export function verifyTwo(input: string): boolean {
   return digest(input.toLowerCase()) === unwrap(B, 0x3d);
 }
 
-/** Once she is through both, she stays through on that device. */
-export function isOpen(): boolean {
+/**
+ * Nothing is remembered. Both stages are entered on every single open, so a
+ * shared or borrowed device never walks straight in, and closing the tab always
+ * puts the gate back. Clears the key an earlier build used to store.
+ */
+export function forget(): void {
   try {
-    return localStorage.getItem(STORE) === unwrap(B, 0x3d).slice(4, 16);
+    localStorage.removeItem(STORE);
   } catch {
-    return false;
-  }
-}
-
-export function remember(): void {
-  try {
-    localStorage.setItem(STORE, unwrap(B, 0x3d).slice(4, 16));
-  } catch {
-    /* private window — she will just re-enter it */
+    /* storage blocked — there was nothing to clear anyway */
   }
 }
 

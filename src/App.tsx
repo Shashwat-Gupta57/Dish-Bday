@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Suspense, lazy, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import AccessGate from './components/AccessGate';
-import { isOpen, reveal } from './lib/access';
+import { forget } from './lib/access';
 
 /**
  * The gate is the whole entry point.
@@ -17,11 +17,9 @@ import { isOpen, reveal } from './lib/access';
 const Site = lazy(() => import('./Site'));
 
 export default function App() {
-  const [open, setOpen] = useState(() => {
-    const already = isOpen();
-    if (already) reveal();
-    return already;
-  });
+  // Always locked on load. Nothing is persisted, so every visit starts here.
+  const [open, setOpen] = useState(false);
+  useEffect(forget, []);
 
   if (!open) return <AccessGate onOpen={() => setOpen(true)} />;
 
