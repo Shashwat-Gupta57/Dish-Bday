@@ -51,7 +51,7 @@ export default function DodgeButton({ onYes }: { onYes: () => void }) {
         transition={{ type: 'spring', stiffness: 260, damping: 18 }}
         className="bg-candy text-white font-soft font-semibold tracking-wide rounded-full px-9 py-4 text-base shadow-[0_10px_24px_-8px_rgba(242,83,125,0.7)] hover:brightness-105 origin-center"
       >
-        Okay fine, I&rsquo;ll send them
+        Fine. I will send them
       </motion.button>
 
       <motion.button
@@ -72,8 +72,8 @@ export default function DodgeButton({ onYes }: { onYes: () => void }) {
           className="w-full text-center font-soft text-xs text-berry/40 mt-2"
         >
           {exhausted
-            ? 'The button has surrendered. Press it.'
-            : `${dodges} escape ${dodges === 1 ? 'attempt' : 'attempts'}. It is getting smaller, Dishu.`}
+            ? 'The button has given up. Press it.'
+            : `${dodges} escape ${dodges === 1 ? 'attempt' : 'attempts'}. The button is shrinking, Dishu Aunty.`}
         </motion.p>
       )}
     </div>

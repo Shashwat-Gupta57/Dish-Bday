@@ -56,7 +56,7 @@ export default function AccessGate({ onOpen }: { onOpen: () => void }) {
           remember();
           reveal();
           setOpened(true);
-          window.setTimeout(onOpen, 1100);
+          window.setTimeout(onOpen, 4200);
         } else fail();
       }, 420);
     },
@@ -99,18 +99,12 @@ export default function AccessGate({ onOpen }: { onOpen: () => void }) {
 
   return (
     <div className="fixed inset-0 z-[999] flex items-center justify-center bg-[#08080B] px-4 overflow-y-auto py-8">
-      {/* Slow drifting field, no colour that hints at anything. */}
+      {/* One soft light source, nothing else. The scanlines read as a CRT and
+          this screen is meant to look like a plain locked page. */}
       <div aria-hidden="true" className="pointer-events-none fixed inset-0">
         <div
           className="absolute -top-1/3 left-1/2 -translate-x-1/2 w-[120vw] aspect-square rounded-full blur-3xl"
-          style={{ background: 'radial-gradient(circle, rgba(120,130,160,0.10), transparent 62%)' }}
-        />
-        <div
-          className="absolute inset-0 opacity-[0.05]"
-          style={{
-            backgroundImage:
-              'repeating-linear-gradient(0deg, #fff 0px, #fff 1px, transparent 1px, transparent 3px)',
-          }}
+          style={{ background: 'radial-gradient(circle, rgba(120,130,160,0.09), transparent 62%)' }}
         />
       </div>
 
@@ -279,14 +273,35 @@ export default function AccessGate({ onOpen }: { onOpen: () => void }) {
             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             className="fixed inset-0 flex items-center justify-center"
           >
-            <motion.p
-              initial={{ opacity: 0, letterSpacing: '0.6em' }}
-              animate={{ opacity: 1, letterSpacing: '0.3em' }}
-              transition={{ duration: 0.9 }}
-              className="font-mono text-[11px] uppercase text-white/70"
-            >
-              Access granted
-            </motion.p>
+            <div className="text-center px-6">
+              <motion.p
+                initial={{ opacity: 0, letterSpacing: '0.6em' }}
+                animate={{ opacity: 1, letterSpacing: '0.3em' }}
+                transition={{ duration: 0.9 }}
+                className="font-mono text-[11px] uppercase text-white/70"
+              >
+                Access granted
+              </motion.p>
+
+              {/* The point of the second lock, said out loud. */}
+              <motion.p
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.4, duration: 0.8 }}
+                className="font-mono text-[11px] leading-relaxed text-white/45 mt-8 max-w-sm mx-auto"
+              >
+                See? Told you.
+              </motion.p>
+              <motion.p
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 2.3, duration: 0.8 }}
+                className="font-mono text-[11px] leading-relaxed text-white/45 mt-2 max-w-sm mx-auto"
+              >
+                I discarded your friend as my first crush ages ago.
+                She ain&rsquo;t my first crush. Hehe.
+              </motion.p>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

@@ -2,50 +2,50 @@ import { useRef, useState } from 'react';
 import { motion } from 'motion/react';
 
 /**
- * The whole archive, sideways — and the confession attached to it.
+ * The archive, sideways — with the provenance of every frame attached.
  *
  * Drag, wheel or swipe. It scrolls natively (with data-lenis-prevent so the
  * smooth scroller keeps its hands off) rather than hijacking the page scroll,
  * because a hijacked strip on a trackpad is a trap you can't get out of.
  *
- * Every frame carries its real provenance. That's the joke and the argument:
- * most of these were not given, they were extracted.
+ * Every frame is labelled with where it actually came from. Almost none of it
+ * was supplied; the rest was taken out of a chat thread or a story archive.
  */
 
 interface Frame {
   src: string;
   tag: string;
-  /** true = actually a decent, intentional photo of her */
+  /** true = supplied directly, rather than recovered from a thread */
   clean?: boolean;
 }
 
 const FRAMES: Frame[] = [
-  { src: '/photo-1.jpg', tag: 'Mirror selfie. The one (1) good one.', clean: true },
-  { src: '/photo-2.jpg', tag: 'Cropped. There were three other people here.' },
-  { src: '/photo-3.jpg', tag: 'Screenshotted off your story before it expired.' },
-  { src: '/photo-4.jpg', tag: 'Group photo. Everyone else has been surgically removed.' },
-  { src: '/photo-5.jpg', tag: 'Sent to me by mistake in 2023. Never deleted.' },
-  { src: '/photo-6.jpg', tag: 'Someone else’s birthday. You were in the background.' },
-  { src: '/photo-7.jpg', tag: 'Cropped so hard the aspect ratio is a war crime.' },
-  { src: '/photo-8.jpg', tag: '267 pixels wide. Two hundred and sixty-seven.' },
-  { src: '/photo-9.jpg', tag: 'Actually good. Rare. Treasured.', clean: true },
-  { src: '/photo-10.jpg', tag: 'Half of a group photo. Your shoulder made the cut.' },
-  { src: '/photo-11.jpg', tag: 'Screenshot of a screenshot. The JPEG is crying.' },
-  { src: '/photo-12.jpg', tag: '110×110. This is a thumbnail. I used it anyway.' },
-  { src: '/photo-13.jpg', tag: 'Cropped from a photo where you were not the subject.' },
-  { src: '/photo-14.jpg', tag: 'Fine. This one you actually sent. Thank you.', clean: true },
-  { src: '/photo-15.jpg', tag: 'Extracted from a group photo. Three besties evicted.' },
-  { src: '/photo-16.jpg', tag: 'From a story about food. You were incidental.' },
-  { src: '/photo-17.jpg', tag: 'Someone else took this. I have no rights to it.' },
-  { src: '/photo-18.jpg', tag: 'Cropped. Original had a hand on your shoulder. Whose?' },
-  { src: '/photo-19.jpg', tag: 'Used twice on this site because I ran out.' },
-  { src: '/photo-20.jpg', tag: 'Blurry. Used at 40% opacity so nobody notices.' },
-  { src: '/photo-21.jpg', tag: 'Behind a blur filter for structural reasons.' },
-  { src: '/photo-22.jpg', tag: '359 pixels. Hidden in a background collage. Sorry.' },
-  { src: '/photo-23.jpg', tag: 'Good photo. Used blurred at 10% opacity. Tragic.' },
-  { src: '/photo-24.jpg', tag: 'Cropped from a group shot at what looks like a wedding.' },
-  { src: '/photo-25.jpg', tag: 'In the background of the finale. Barely visible.' },
-  { src: '/photo-26.jpg', tag: 'The Virgo page. Carried an entire section alone.', clean: true },
+  { src: '/photo-1.jpg', tag: 'Source: direct message. Sent by you. Retained.', clean: true },
+  { src: '/photo-2.jpg', tag: 'Source: chat. Cropped from a group image, three subjects removed.' },
+  { src: '/photo-3.jpg', tag: 'Source: story archive. Captured before expiry.' },
+  { src: '/photo-4.jpg', tag: 'Source: chat. Group image. All other subjects cropped out.' },
+  { src: '/photo-5.jpg', tag: 'Source: chat, 2023. Sent in error. Not deleted.' },
+  { src: '/photo-6.jpg', tag: 'Source: chat. Third-party event. Subject incidental to frame.' },
+  { src: '/photo-7.jpg', tag: 'Source: chat. Heavily cropped. Aspect ratio non-standard.' },
+  { src: '/photo-8.jpg', tag: 'Source: chat. Resolution 267px. Compression artefacts present.' },
+  { src: '/photo-9.jpg', tag: 'Source: direct message. Sent by you. Full resolution.', clean: true },
+  { src: '/photo-10.jpg', tag: 'Source: chat. Partial subject recovered from group image.' },
+  { src: '/photo-11.jpg', tag: 'Source: forwarded screenshot. Re-encoded twice.' },
+  { src: '/photo-12.jpg', tag: 'Source: chat thumbnail. Resolution 110px. Used regardless.' },
+  { src: '/photo-13.jpg', tag: 'Source: chat. Cropped from an image with a different subject.' },
+  { src: '/photo-14.jpg', tag: 'Source: direct message. Sent by you. Unmodified.', clean: true },
+  { src: '/photo-15.jpg', tag: 'Source: chat. Extracted from group image, three subjects removed.' },
+  { src: '/photo-16.jpg', tag: 'Source: story archive. Subject of post was a meal.' },
+  { src: '/photo-17.jpg', tag: 'Source: chat. Photographer unknown. Forwarded to me.' },
+  { src: '/photo-18.jpg', tag: 'Source: chat. Cropped. Adjacent subject removed at shoulder.' },
+  { src: '/photo-19.jpg', tag: 'Source: chat archive. Used in two sections of this site.' },
+  { src: '/photo-20.jpg', tag: 'Source: chat. Motion blur. Applied at reduced opacity.' },
+  { src: '/photo-21.jpg', tag: 'Source: chat. Blur filter applied to mask source quality.' },
+  { src: '/photo-22.jpg', tag: 'Source: chat. Resolution 359px. Placed in background layer.' },
+  { src: '/photo-23.jpg', tag: 'Source: chat archive. Usable quality. Used at 10% opacity.' },
+  { src: '/photo-24.jpg', tag: 'Source: chat. Group image, formal event. Subject isolated.' },
+  { src: '/photo-25.jpg', tag: 'Source: chat archive. Background layer only.' },
+  { src: '/photo-26.jpg', tag: 'Source: direct message. Sent by you. Carried one section alone.', clean: true },
 ];
 
 export default function FilmStrip() {
@@ -78,9 +78,9 @@ export default function FilmStrip() {
     <div className="relative">
       <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 mb-5 px-1">
         <p className="font-soft text-xs tracking-[0.25em] uppercase text-berry/50">
-          The entire archive &middot; {FRAMES.length} frames
+          Asset register &middot; {FRAMES.length} frames
         </p>
-        <p className="font-soft text-xs text-berry/40">drag me &rarr;</p>
+        <p className="font-soft text-xs text-berry/40">drag to scroll &rarr;</p>
       </div>
 
       {/* The strip */}
@@ -157,17 +157,16 @@ export default function FilmStrip() {
         >
           {active !== null
             ? FRAMES[active].tag
-            : 'Touch any frame and it will tell you where it actually came from. Brace yourself.'}
+            : 'Select a frame to view its source record.'}
         </motion.p>
       </div>
 
       <p className="mt-6 font-soft text-sm leading-relaxed text-berry/60 bg-petal/50 rounded-2xl px-5 py-4">
-        <strong className="text-berry">Full disclosure:</strong> only{' '}
-        <strong className="text-candy">{cleanCount} of {FRAMES.length}</strong> of these were
-        genuinely sent to me. The rest are cropped out of group photos, lifted off expired
-        stories, or rescued from a chat in 2023. Some are 110 pixels wide. I blurred four of them
-        on purpose so you would not notice how bad they were. This is what I have been working
-        with.
+        <strong className="text-berry">Summary:</strong>{' '}
+        <strong className="text-candy">{cleanCount} of {FRAMES.length}</strong> frames were
+        supplied directly. The remaining {FRAMES.length - cleanCount} were recovered from chat
+        threads, group images and story archives. Four are below usable resolution and were
+        placed behind blur or opacity to hide it. This is the working set.
       </p>
     </div>
   );

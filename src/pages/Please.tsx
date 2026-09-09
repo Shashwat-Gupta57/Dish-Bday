@@ -9,32 +9,31 @@ import DodgeButton from '../components/beg/DodgeButton';
 /**
  * /please — the only page on this site that wants something.
  *
- * Every other page is an accusation. This one is a grovel, so it gets the
- * opposite treatment again: soft blush, puffy cards, stickers, springs, and
- * nothing sharper than a 32px radius. Sugar, after brutalism and nocturne.
+ * Still the softest surface on the site, but the writing is a request, not a
+ * love letter: plain, slightly official, and specific about what is missing.
  */
 
 const HAVE = 26;
 const WANT = 50;
 
 const PLEASE_LINES = [
-  'please',
-  'pleaseee',
-  'pleasepleaseplease',
-  'I am on my knees',
-  'I am begging on a website I built for you',
-  'do you understand how long the film strip took',
-  'I cropped forty people out of photos for this',
-  'one (1) photo dump. that is all I ask',
-  'okay I will stop. but will I though',
-  'send. the. photos.',
+  'Request submitted.',
+  'Request submitted again.',
+  'Still no photos.',
+  'This is the third time of asking.',
+  'The archive has not changed since you last checked.',
+  'Twenty-two of twenty-six were taken, not given.',
+  'A single photo dump would close this entirely.',
+  'This is now the longest-running item on the list.',
+  'Escalating.',
+  'Send the photos, Dishu Aunty.',
 ];
 
 const OFFERS = [
-  { emoji: '🍟', title: 'Fulki. On me.', note: 'One full plate. Two if the photos are good.' },
-  { emoji: '😴', title: 'No sleep jokes', note: 'For one (1) week. Renewable. Non-binding.' },
-  { emoji: '🚫', title: 'Aunty ban', note: 'I will not call you Aunty. For 48 hours. Approximately.' },
-  { emoji: '👑', title: 'Full editorial control', note: 'You pick which ones go on the site. Mostly.' },
+  { emoji: '🍟', title: 'Fulki, paid for', note: 'One full plate. Two if the resolution is decent.' },
+  { emoji: '😴', title: 'Sleep jokes suspended', note: 'Seven days. Renewable. Not legally binding.' },
+  { emoji: '🚫', title: '"Aunty" suspended', note: 'Forty-eight hours. Approximately. No guarantees.' },
+  { emoji: '👑', title: 'Editorial approval', note: 'You choose which frames are used. Within reason.' },
 ];
 
 export default function Please() {
@@ -81,16 +80,16 @@ export default function Please() {
             className="absolute -top-6 right-0 md:right-6 bg-candy text-white rounded-2xl px-4 py-2.5 max-w-[210px] shadow-lg z-20"
           >
             <p className="font-soft text-[11px] leading-snug font-medium">
-              this is the nice page. don&rsquo;t get used to it 🥺
+              this is the polite page. it does not last.
             </p>
           </motion.div>
 
           <p className="font-soft text-[11px] tracking-[0.35em] uppercase text-candy mb-6">
-            Section 01 &middot; a formal grovel
+            Section 01 &middot; the request
           </p>
 
           <h1 className="font-serif text-5xl md:text-7xl italic leading-[0.95] mb-4">
-            Dishu.
+            Dishu Aunty.
             <br />
             <span className="text-candy">I need photos.</span>
           </h1>
@@ -101,35 +100,36 @@ export default function Please() {
             transition={{ delay: 1.1, duration: 0.8 }}
             className="font-soft text-sm md:text-base text-berry/45 italic mb-8 max-w-xl"
           >
-            (haan &mdash; <strong className="text-candy not-italic">Dishu</strong>. Diya se
+            (haan &mdash; <strong className="text-candy not-italic">Dishu Aunty</strong>. Diya se
             udhaar liya hai. Kya pata yahi dekh ke photos bhej do tum 🥀🥀🥀)
           </motion.p>
 
           <p className="font-soft text-lg md:text-xl leading-relaxed text-berry/70 max-w-2xl mb-6">
-            I have built you a magazine, a fake legal department, a statistical study, a sleep
-            laboratory and a page that plays sad music. I have done all of it on{' '}
-            <strong className="text-candy">twenty-six photographs</strong>, most of which I did
-            not obtain honestly.
+            This site runs to nine pages &mdash; a magazine, a legal department, a statistical
+            study, a sleep laboratory and an arcade. All of it is built on{' '}
+            <strong className="text-candy">twenty-six photographs</strong>, and only four of
+            those were actually supplied by you.
           </p>
 
           <p className="font-soft text-lg md:text-xl leading-relaxed text-berry/70 max-w-2xl">
-            I am not asking for much. Dishu, I am asking for a photo dump. I am asking on my knees, in
-            Quicksand, on a page I wrote by hand at an unreasonable hour.
+            The request is simple, Dishu Aunty: one photo dump. Twenty to fifty frames, any
+            quality. That is the entire ask, and it is the only thing this site needs that it
+            cannot get for itself.
           </p>
         </section>
 
         {/* ─────────────────── 02 · The evidence ─────────────────── */}
         <section className="mb-28 md:mb-40">
           <p className="font-soft text-[11px] tracking-[0.35em] uppercase text-candy mb-6">
-            Section 02 &middot; exhibit: everything I own
+            Section 02 &middot; asset register
           </p>
           <h2 className="font-serif text-3xl md:text-5xl italic mb-4">
-            This is the entire archive.
+            Every frame on file.
           </h2>
           <p className="font-soft text-base md:text-lg leading-relaxed text-berry/65 max-w-2xl mb-10">
-            Every photograph on this website, in one strip. Drag it. Touch any frame and it will
-            confess where it actually came from. Most of them are not photos of you. They are
-            photos that <em>contain</em> you, which I then cropped until they were.
+            Every photograph used on this site, with its source recorded. Drag the strip and
+            select any frame to see where it came from. Most are not photographs of you &mdash;
+            they are photographs that <em>contained</em> you, cropped until they were.
           </p>
           <FilmStrip />
         </section>
@@ -137,7 +137,7 @@ export default function Please() {
         {/* ─────────────────── 03 · The maths ─────────────────── */}
         <section className="mb-28 md:mb-40">
           <p className="font-soft text-[11px] tracking-[0.35em] uppercase text-candy mb-6">
-            Section 03 &middot; the arithmetic of my suffering
+            Section 03 &middot; the shortfall
           </p>
           <h2 className="font-serif text-3xl md:text-5xl italic mb-10">
             I need {WANT}. I have {HAVE}.
@@ -160,8 +160,7 @@ export default function Please() {
               />
             </div>
             <p className="font-soft text-sm text-berry/50 mt-4">
-              {WANT - HAVE} more and this becomes a masterpiece instead of a very determined
-              cropping exercise.
+              {WANT - HAVE} more frames and this stops being a cropping exercise.
             </p>
           </div>
 
@@ -169,7 +168,7 @@ export default function Please() {
             {[
               { v: '24', l: 'photos short' },
               { v: '~4 min', l: 'of your time' },
-              { v: '40+', l: 'people I cropped out' },
+              { v: '40+', l: 'people removed from frames' },
               { v: '1', l: 'bestie, begging' },
             ].map((s) => (
               <div key={s.l} className="puff p-5 text-center">
@@ -183,10 +182,10 @@ export default function Please() {
         {/* ─────────────────── 04 · The bribe ─────────────────── */}
         <section className="mb-28 md:mb-40">
           <p className="font-soft text-[11px] tracking-[0.35em] uppercase text-candy mb-6">
-            Section 04 &middot; what&rsquo;s in it for you
+            Section 04 &middot; terms offered
           </p>
           <h2 className="font-serif text-3xl md:text-5xl italic mb-10">
-            I am prepared to negotiate.
+            What is on the table.
           </h2>
 
           <div className="grid sm:grid-cols-2 gap-5 mb-4">
@@ -223,11 +222,11 @@ export default function Please() {
               >
                 <p className="text-4xl mb-4" aria-hidden="true">🥹</p>
                 <p className="font-serif text-2xl md:text-3xl italic text-candy mb-3">
-                  I knew you&rsquo;d cave.
+                  Noted. Thank you.
                 </p>
                 <p className="font-soft text-base text-berry/60 max-w-md mx-auto">
-                  Screenshot this page and send it back to me with the photos so I know it was
-                  legally binding, Dishu. The fulki offer stands. The aunty ban does not.
+                  Screenshot this page and send it back with the photos so there is a record.
+                  The fulki offer stands. The &ldquo;Aunty&rdquo; suspension does not.
                 </p>
               </motion.div>
             )}
@@ -237,9 +236,9 @@ export default function Please() {
         {/* ─────────────────── 05 · The final beg ─────────────────── */}
         <section className="relative">
           <p className="font-soft text-[11px] tracking-[0.35em] uppercase text-candy mb-6">
-            Section 05 &middot; no dignity remaining
+            Section 05 &middot; follow-up
           </p>
-          <h2 className="font-serif text-3xl md:text-5xl italic mb-8">One more time, with feeling.</h2>
+          <h2 className="font-serif text-3xl md:text-5xl italic mb-8">Asking once more.</h2>
 
           <div className="puff p-8 md:p-12 text-center relative overflow-hidden">
             {/* Hearts rise out of the button. */}
@@ -273,18 +272,18 @@ export default function Please() {
               whileTap={{ scale: 0.93 }}
               className="relative z-10 bg-candy text-white font-soft font-semibold rounded-full px-10 py-4 text-base shadow-[0_10px_24px_-8px_rgba(242,83,125,0.7)] hover:brightness-105 animate-wobble"
             >
-              press to beg harder
+              submit again
             </motion.button>
 
             <p className="font-soft text-[11px] tracking-[0.2em] uppercase text-berry/35 mt-7 tabular-nums">
-              {pleases} {pleases === 1 ? 'plea' : 'pleas'} registered &middot; 0 photos received
+              {pleases} {pleases === 1 ? 'request' : 'requests'} logged &middot; 0 photos received
             </p>
           </div>
 
           <p className="font-soft text-base md:text-lg leading-relaxed text-berry/65 max-w-2xl mt-14">
-            Twenty to fifty photos. Any quality. Blurry ones welcome. Group photos welcome &mdash;
-            I am, as established, extremely good at removing people from them. Send them and next
-            year&rsquo;s issue will be so much worse for you, and I mean that with my whole chest.
+            Twenty to fifty photographs. Any quality &mdash; blurry is fine, group shots are fine.
+            As established, removing other people from a frame is not a problem. Send them and
+            next year&rsquo;s issue will be considerably worse for you.
           </p>
 
           <footer className="flex flex-wrap gap-x-8 gap-y-3 mt-16 pt-8 border-t border-petal font-soft text-[11px] uppercase tracking-[0.25em] text-berry/35">
