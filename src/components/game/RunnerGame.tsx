@@ -946,7 +946,7 @@ export default function RunnerGame() {
       bone(chestX, chestY, pelvisX, pelvisY);
 
       // Legs, knees bending forward
-      for (const [foot, bend] of [[footL, 1], [footR, -1]] as const) {
+      for (const [foot, bend] of [[footL, 1], [footR, 1]] as const) {
         const k = ik(pelvisX, pelvisY, foot.x, foot.y, thigh, shin, bend * 0.9);
         bone(pelvisX, pelvisY, k.jx, k.jy);
         bone(k.jx, k.jy, foot.x, foot.y);
@@ -956,7 +956,7 @@ export default function RunnerGame() {
 
       // Arms, elbows bending down
       const palms: { x: number; y: number }[] = [];
-      for (const [hand, bend] of [[handR, -1], [handL, 1]] as const) {
+      for (const [hand, bend] of [[handR, -1], [handL, -1]] as const) {
         const e = ik(chestX, shoulderY, hand.x, hand.y, upper, fore, bend * 0.85);
         bone(chestX, shoulderY, e.jx, e.jy);
         bone(e.jx, e.jy, hand.x, hand.y);
@@ -1966,266 +1966,6 @@ export default function RunnerGame() {
             }
           }
 
-          // ---- kunai, plain or marked ----
-      if (s.kunai) {
-        const k = s.kunai;
-        ctx.save();
-        ctx.translate(k.x, k.y);
-        ctx.rotate(Math.atan2(k.vy, 11));
-        if (k.phase > 0) {
-          // Marked: three prongs, a seal tag, and it stops being solid.
-          const gk = ctx.createRadialGradient(0, 0, 0, 0, 0, 46);
-          gk.addColorStop(0, 'rgba(255,211,77,0.9)');
-          gk.addColorStop(1, 'rgba(255,211,77,0)');
-          ctx.fillStyle = gk;
-          ctx.beginPath(); ctx.arc(0, 0, 46, 0, Math.PI * 2); ctx.fill();
-          ctx.strokeStyle = '#FFF3CC'; ctx.lineWidth = 3;
-          ctx.beginPath();
-          ctx.moveTo(-16, 0); ctx.lineTo(16, 0);
-          ctx.moveTo(6, 0); ctx.lineTo(20, -11);
-          ctx.moveTo(6, 0); ctx.lineTo(20, 11);
-          ctx.stroke();
-          // Paper tag fluttering off the ring.
-          ctx.fillStyle = '#F3E7C8';
-          ctx.save();
-          ctx.translate(-20, 0); ctx.rotate(Math.sin(k.t * 0.3) * 0.4);
-          ctx.fillRect(-16, -6, 16, 12);
-          ctx.restore();
-        } else {
-          // Bigger, solid, with a motion streak — the old one was a few grey
-          // pixels crossing the screen in a second and was simply not visible.
-          ctx.strokeStyle = 'rgba(220,235,250,0.55)';
-          ctx.lineWidth = 3;
-          ctx.beginPath(); ctx.moveTo(-56, 0); ctx.lineTo(-18, 0); ctx.stroke();
-          ctx.shadowColor = 'rgba(0,0,0,0.9)';
-          ctx.shadowBlur = 8;
-          ctx.fillStyle = '#EFF6FF';
-          ctx.strokeStyle = '#1B2430';
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.moveTo(-20, 0); ctx.lineTo(8, -9); ctx.lineTo(26, 0); ctx.lineTo(8, 9);
-          ctx.closePath(); ctx.fill(); ctx.stroke();
-          // Ring at the butt of the handle.
-          ctx.beginPath(); ctx.arc(-24, 0, 5, 0, Math.PI * 2); ctx.stroke();
-        }
-        ctx.restore();
-      }
-
-      // The combo prompt, so the timing is teachable rather than secret.
-      if (s.comboReady) {
-        ctx.fillStyle = Math.floor(s.t / 5) % 2 ? '#FFD34D' : '#FFFFFF';
-        ctx.font = '13px "Press Start 2P", monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText('NOW — JUMP + X', s.bossX - 40, GROUND + s.bossOff - bodyH(s.bossStage) - 84);
-      }
-
-      // ---- hiraishin ----
-      if (s.act?.kind === 'hiraishin') {
-        const a = s.act;
-        if (a.t < 30) {
-          // She leaves a flash where she was standing.
-          const k3 = 1 - a.t / 30;
-          ctx.strokeStyle = 'rgba(255,211,77,' + k3 + ')';
-          ctx.lineWidth = 5;
-          for (let i = 0; i < 6; i += 1) {
-            const ang = (i / 6) * Math.PI * 2;
-            ctx.beginPath();
-            ctx.moveTo(PLAYER_X + Math.cos(ang) * 20, GROUND - 60 + Math.sin(ang) * 20);
-            ctx.lineTo(PLAYER_X + Math.cos(ang) * (90 * (1 - k3) + 20), GROUND - 60 + Math.sin(ang) * (90 * (1 - k3) + 20));
-            ctx.stroke();
-          }
-        }
-        if (a.t >= 20 && a.t < 100) {
-          // Rasengan held over her head on the way down. Position is derived
-          // here rather than read from px/py, which are declared further down.
-          const hpx = s.bossX - 10;
-          const hpy = a.t < 96
-            ? GROUND - 280 + Math.max(0, a.t - 26) * 2.2
-            : GROUND - bodyH(s.bossStage) - 40;
-          const rx2 = hpx + 30, ry2 = hpy + 30;
-          const gr4 = ctx.createRadialGradient(rx2, ry2, 0, rx2, ry2, 62);
-          gr4.addColorStop(0, 'rgba(255,255,255,1)');
-          gr4.addColorStop(0.35, 'rgba(120,190,255,0.95)');
-          gr4.addColorStop(1, 'rgba(90,140,255,0)');
-          ctx.fillStyle = gr4;
-          ctx.beginPath(); ctx.arc(rx2, ry2, 62, 0, Math.PI * 2); ctx.fill();
-          ctx.strokeStyle = 'rgba(220,240,255,0.9)'; ctx.lineWidth = 3;
-          for (let i = 0; i < 3; i += 1) {
-            ctx.beginPath();
-            ctx.ellipse(rx2, ry2, 30, 11, a.t * 0.5 + (i * Math.PI) / 3, 0, Math.PI * 2);
-            ctx.stroke();
-          }
-        }
-        if (a.t >= 96 && a.t < 160) {
-          ctx.fillStyle = '#FFD34D';
-          ctx.font = '17px "Press Start 2P", monospace';
-          ctx.textAlign = 'center';
-          ctx.fillText('HIRAISHIN', W / 2, 100);
-          ctx.font = '10px "Press Start 2P", monospace';
-          ctx.fillText('FLYING RAIJIN — SECOND STEP', W / 2, 126);
-        }
-      }
-
-      // ---- the portal ----
-      if (s.act?.kind === 'portal') {
-        const a = s.act;
-        const cx6 = W / 2, cy6 = H / 2 - 20;
-        // Opens to full screen, holds, closes.
-        const grow = a.t < 96 ? Math.min(1, a.t / 78) : Math.max(0, 1 - (a.t - 96) / 46);
-        const R = grow * 560;
-        if (R > 4) {
-          const nd = DOMAINS[a.t < 96 ? s.pendingDomain : s.domain];
-          // The other side, seen through the opening.
-          ctx.save();
-          ctx.beginPath(); ctx.arc(cx6, cy6, R, 0, Math.PI * 2); ctx.clip();
-          ctx.fillStyle = nd.sky;
-          ctx.fillRect(0, 0, W, H);
-          ctx.fillStyle = nd.hill;
-          ctx.fillRect(0, 0, W, H);
-          ctx.restore();
-          // Sparking rim.
-          ctx.strokeStyle = '#FF8A2B';
-          ctx.lineWidth = 6;
-          ctx.beginPath(); ctx.arc(cx6, cy6, R, 0, Math.PI * 2); ctx.stroke();
-          ctx.lineWidth = 3;
-          for (let i = 0; i < 46; i += 1) {
-            const ang = (i / 46) * Math.PI * 2 + s.t * 0.05;
-            const jag = 12 + Math.random() * 26;
-            ctx.strokeStyle = 'rgba(255,' + (130 + Math.random() * 90 | 0) + ',43,' + (0.4 + Math.random() * 0.6) + ')';
-            ctx.beginPath();
-            ctx.moveTo(cx6 + Math.cos(ang) * R, cy6 + Math.sin(ang) * R);
-            ctx.lineTo(cx6 + Math.cos(ang + 0.05) * (R + jag), cy6 + Math.sin(ang + 0.05) * (R + jag));
-            ctx.stroke();
-          }
-          ctx.fillStyle = '#FF8A2B';
-          ctx.font = '13px "Press Start 2P", monospace';
-          ctx.textAlign = 'center';
-          if (a.t < 90) ctx.fillText('DIMENSION SHIFT', cx6, 92);
-        }
-      }
-
-      // ---- shinra tensei: a repulsion front off his palm ----
-      if (s.tensei > 0) {
-        const bxx = s.bossX, byy = GROUND + s.bossOff - bodyH(3) * 0.55;
-        if (s.tensei > 22) {
-          const k = 1 - (s.tensei - 22) / 30;
-          ctx.strokeStyle = 'rgba(186,140,255,' + (0.3 + k * 0.6) + ')';
-          ctx.lineWidth = 3;
-          for (let i = 0; i < 8; i += 1) {
-            const a2 = (i / 8) * Math.PI * 2 + s.t * 0.06;
-            const d = 120 * (1 - k) + 24;
-            ctx.beginPath();
-            ctx.moveTo(bxx + Math.cos(a2) * d, byy + Math.sin(a2) * d);
-            ctx.lineTo(bxx + Math.cos(a2) * (d * 0.6), byy + Math.sin(a2) * (d * 0.6));
-            ctx.stroke();
-          }
-        } else {
-          const k = 1 - s.tensei / 22;
-          ctx.strokeStyle = 'rgba(210,190,255,' + (1 - k) + ')';
-          ctx.lineWidth = 9;
-          for (let i = 0; i < 3; i += 1) {
-            ctx.beginPath();
-            ctx.arc(bxx, byy, k * 620 + i * 60, Math.PI * 0.55, Math.PI * 1.45);
-            ctx.stroke();
-          }
-          ctx.fillStyle = '#BA8CFF';
-          ctx.font = '15px "Press Start 2P", monospace';
-          ctx.textAlign = 'center';
-          ctx.fillText('SHINRA TENSEI', W / 2, 96);
-        }
-      }
-
-      // ---- serious punch ----
-      if (s.punchT > 0) {
-        const k = 1 - s.punchT / 130;
-        const bxx = s.bossX, byy = GROUND + s.bossOff - bodyH(3) * 0.6;
-        // Air being dragged in behind the fist.
-        ctx.strokeStyle = 'rgba(255,255,255,' + (0.15 + k * 0.55) + ')';
-        ctx.lineWidth = 2;
-        for (let i = 0; i < 22; i += 1) {
-          const yy = (i / 22) * H;
-          const len = 40 + k * 220;
-          ctx.beginPath(); ctx.moveTo(bxx + 60, yy); ctx.lineTo(bxx + 60 + len, yy); ctx.stroke();
-        }
-        const fg = ctx.createRadialGradient(bxx + 30, byy, 0, bxx + 30, byy, 40 + k * 70);
-        fg.addColorStop(0, 'rgba(255,255,255,' + (0.5 + k * 0.5) + ')');
-        fg.addColorStop(1, 'rgba(255,211,77,0)');
-        ctx.fillStyle = fg;
-        ctx.beginPath(); ctx.arc(bxx + 30, byy, 40 + k * 70, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#FFD34D';
-        ctx.font = '16px "Press Start 2P", monospace';
-        ctx.textAlign = 'center';
-        if (k > 0.3) ctx.fillText('SERIOUS PUNCH', W / 2, 96);
-        ctx.font = '9px "Press Start 2P", monospace';
-        if (k > 0.5) ctx.fillText('GET IN THE AIR', W / 2, 122);
-      }
-      if (s.punchGo > 0) {
-        const wall = s.bossX - (34 - s.punchGo) * 34;
-        const wg = ctx.createLinearGradient(wall - 70, 0, wall + 70, 0);
-        wg.addColorStop(0, 'rgba(255,211,77,0)');
-        wg.addColorStop(0.5, 'rgba(255,255,255,' + (s.punchGo / 34) + ')');
-        wg.addColorStop(1, 'rgba(255,211,77,0)');
-        ctx.fillStyle = wg;
-        ctx.fillRect(wall - 70, GROUND - 120, 140, 120);
-      }
-
-      // ---- rasenshuriken ----
-      for (const r of s.rsk) {
-        ctx.save();
-        ctx.translate(r.x, r.y);
-        const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, 84);
-        glow.addColorStop(0, 'rgba(255,255,255,0.95)');
-        glow.addColorStop(0.35, 'rgba(150,205,255,0.75)');
-        glow.addColorStop(1, 'rgba(110,160,255,0)');
-        ctx.fillStyle = glow;
-        ctx.beginPath(); ctx.arc(0, 0, 84, 0, Math.PI * 2); ctx.fill();
-        ctx.rotate(r.t * 0.42);
-        ctx.fillStyle = 'rgba(220,240,255,0.85)';
-        ctx.strokeStyle = '#FFFFFF';
-        ctx.lineWidth = 2;
-        for (let i = 0; i < 4; i += 1) {
-          ctx.rotate(Math.PI / 2);
-          ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.lineTo(64, -16);
-          ctx.lineTo(74, 0);
-          ctx.lineTo(64, 16);
-          ctx.closePath();
-          ctx.fill(); ctx.stroke();
-        }
-        ctx.beginPath(); ctx.arc(0, 0, 17, 0, Math.PI * 2);
-        ctx.fillStyle = '#FFFFFF'; ctx.fill();
-        ctx.restore();
-      }
-
-      // ---- eight trigrams ----
-      if (s.trigT > 0) {
-        ctx.save();
-        ctx.strokeStyle = 'rgba(200,230,255,0.6)';
-        ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.arc(PLAYER_X, s.y - 90, 130, 0, Math.PI * 2); ctx.stroke();
-        ctx.beginPath(); ctx.arc(PLAYER_X, s.y - 90, 88, 0, Math.PI * 2); ctx.stroke();
-        for (let i = 0; i < 8; i += 1) {
-          const a2 = (i / 8) * Math.PI * 2 + s.trigT * 0.02;
-          ctx.beginPath();
-          ctx.moveTo(PLAYER_X + Math.cos(a2) * 88, s.y - 90 + Math.sin(a2) * 88);
-          ctx.lineTo(PLAYER_X + Math.cos(a2) * 130, s.y - 90 + Math.sin(a2) * 130);
-          ctx.stroke();
-        }
-        // A strike flash on each palm.
-        if (s.trigT % 11 > 7) {
-          ctx.fillStyle = 'rgba(255,255,255,0.75)';
-          ctx.beginPath();
-          ctx.arc(PLAYER_X + 30 - Math.random() * 60, s.y - 60 - Math.random() * 90, 15, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        ctx.fillStyle = '#C8E6FF';
-        ctx.font = '11px "Press Start 2P", monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText('EIGHT TRIGRAMS  ' + s.trigHits + ' PALMS', W / 2, 96);
-        ctx.restore();
-      }
-
       // ---- shuriken ----
           for (const sh of s.shurikens) { sh.x -= 8.2; sh.y += sh.vy; sh.t += 1; }
           s.shurikens = s.shurikens.filter((sh) => sh.x > -40);
@@ -2551,6 +2291,266 @@ export default function RunnerGame() {
       }
 
       // ---- shuriken ----
+          // ---- kunai, plain or marked ----
+      if (s.kunai) {
+        const k = s.kunai;
+        ctx.save();
+        ctx.translate(k.x, k.y);
+        ctx.rotate(Math.atan2(k.vy, 11));
+        if (k.phase > 0) {
+          // Marked: three prongs, a seal tag, and it stops being solid.
+          const gk = ctx.createRadialGradient(0, 0, 0, 0, 0, 46);
+          gk.addColorStop(0, 'rgba(255,211,77,0.9)');
+          gk.addColorStop(1, 'rgba(255,211,77,0)');
+          ctx.fillStyle = gk;
+          ctx.beginPath(); ctx.arc(0, 0, 46, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = '#FFF3CC'; ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(-16, 0); ctx.lineTo(16, 0);
+          ctx.moveTo(6, 0); ctx.lineTo(20, -11);
+          ctx.moveTo(6, 0); ctx.lineTo(20, 11);
+          ctx.stroke();
+          // Paper tag fluttering off the ring.
+          ctx.fillStyle = '#F3E7C8';
+          ctx.save();
+          ctx.translate(-20, 0); ctx.rotate(Math.sin(k.t * 0.3) * 0.4);
+          ctx.fillRect(-16, -6, 16, 12);
+          ctx.restore();
+        } else {
+          // Bigger, solid, with a motion streak — the old one was a few grey
+          // pixels crossing the screen in a second and was simply not visible.
+          ctx.strokeStyle = 'rgba(220,235,250,0.55)';
+          ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.moveTo(-56, 0); ctx.lineTo(-18, 0); ctx.stroke();
+          ctx.shadowColor = 'rgba(0,0,0,0.9)';
+          ctx.shadowBlur = 8;
+          ctx.fillStyle = '#EFF6FF';
+          ctx.strokeStyle = '#1B2430';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(-20, 0); ctx.lineTo(8, -9); ctx.lineTo(26, 0); ctx.lineTo(8, 9);
+          ctx.closePath(); ctx.fill(); ctx.stroke();
+          // Ring at the butt of the handle.
+          ctx.beginPath(); ctx.arc(-24, 0, 5, 0, Math.PI * 2); ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      // The combo prompt, so the timing is teachable rather than secret.
+      if (s.comboReady) {
+        ctx.fillStyle = Math.floor(s.t / 5) % 2 ? '#FFD34D' : '#FFFFFF';
+        ctx.font = '13px "Press Start 2P", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('NOW — JUMP + X', s.bossX - 40, GROUND + s.bossOff - bodyH(s.bossStage) - 84);
+      }
+
+      // ---- hiraishin ----
+      if (s.act?.kind === 'hiraishin') {
+        const a = s.act;
+        if (a.t < 30) {
+          // She leaves a flash where she was standing.
+          const k3 = 1 - a.t / 30;
+          ctx.strokeStyle = 'rgba(255,211,77,' + k3 + ')';
+          ctx.lineWidth = 5;
+          for (let i = 0; i < 6; i += 1) {
+            const ang = (i / 6) * Math.PI * 2;
+            ctx.beginPath();
+            ctx.moveTo(PLAYER_X + Math.cos(ang) * 20, GROUND - 60 + Math.sin(ang) * 20);
+            ctx.lineTo(PLAYER_X + Math.cos(ang) * (90 * (1 - k3) + 20), GROUND - 60 + Math.sin(ang) * (90 * (1 - k3) + 20));
+            ctx.stroke();
+          }
+        }
+        if (a.t >= 20 && a.t < 100) {
+          // Rasengan held over her head on the way down. Position is derived
+          // here rather than read from px/py, which are declared further down.
+          const hpx = s.bossX - 10;
+          const hpy = a.t < 96
+            ? GROUND - 280 + Math.max(0, a.t - 26) * 2.2
+            : GROUND - bodyH(s.bossStage) - 40;
+          const rx2 = hpx + 30, ry2 = hpy + 30;
+          const gr4 = ctx.createRadialGradient(rx2, ry2, 0, rx2, ry2, 62);
+          gr4.addColorStop(0, 'rgba(255,255,255,1)');
+          gr4.addColorStop(0.35, 'rgba(120,190,255,0.95)');
+          gr4.addColorStop(1, 'rgba(90,140,255,0)');
+          ctx.fillStyle = gr4;
+          ctx.beginPath(); ctx.arc(rx2, ry2, 62, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = 'rgba(220,240,255,0.9)'; ctx.lineWidth = 3;
+          for (let i = 0; i < 3; i += 1) {
+            ctx.beginPath();
+            ctx.ellipse(rx2, ry2, 30, 11, a.t * 0.5 + (i * Math.PI) / 3, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+        }
+        if (a.t >= 96 && a.t < 160) {
+          ctx.fillStyle = '#FFD34D';
+          ctx.font = '17px "Press Start 2P", monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText('HIRAISHIN', W / 2, 100);
+          ctx.font = '10px "Press Start 2P", monospace';
+          ctx.fillText('FLYING RAIJIN — SECOND STEP', W / 2, 126);
+        }
+      }
+
+      // ---- the portal ----
+      if (s.act?.kind === 'portal') {
+        const a = s.act;
+        const cx6 = W / 2, cy6 = H / 2 - 20;
+        // Opens to full screen, holds, closes.
+        const grow = a.t < 96 ? Math.min(1, a.t / 78) : Math.max(0, 1 - (a.t - 96) / 46);
+        const R = grow * 560;
+        if (R > 4) {
+          const nd = DOMAINS[a.t < 96 ? s.pendingDomain : s.domain];
+          // The other side, seen through the opening.
+          ctx.save();
+          ctx.beginPath(); ctx.arc(cx6, cy6, R, 0, Math.PI * 2); ctx.clip();
+          ctx.fillStyle = nd.sky;
+          ctx.fillRect(0, 0, W, H);
+          ctx.fillStyle = nd.hill;
+          ctx.fillRect(0, 0, W, H);
+          ctx.restore();
+          // Sparking rim.
+          ctx.strokeStyle = '#FF8A2B';
+          ctx.lineWidth = 6;
+          ctx.beginPath(); ctx.arc(cx6, cy6, R, 0, Math.PI * 2); ctx.stroke();
+          ctx.lineWidth = 3;
+          for (let i = 0; i < 46; i += 1) {
+            const ang = (i / 46) * Math.PI * 2 + s.t * 0.05;
+            const jag = 12 + Math.random() * 26;
+            ctx.strokeStyle = 'rgba(255,' + (130 + Math.random() * 90 | 0) + ',43,' + (0.4 + Math.random() * 0.6) + ')';
+            ctx.beginPath();
+            ctx.moveTo(cx6 + Math.cos(ang) * R, cy6 + Math.sin(ang) * R);
+            ctx.lineTo(cx6 + Math.cos(ang + 0.05) * (R + jag), cy6 + Math.sin(ang + 0.05) * (R + jag));
+            ctx.stroke();
+          }
+          ctx.fillStyle = '#FF8A2B';
+          ctx.font = '13px "Press Start 2P", monospace';
+          ctx.textAlign = 'center';
+          if (a.t < 90) ctx.fillText('DIMENSION SHIFT', cx6, 92);
+        }
+      }
+
+      // ---- shinra tensei: a repulsion front off his palm ----
+      if (s.tensei > 0) {
+        const bxx = s.bossX, byy = GROUND + s.bossOff - bodyH(3) * 0.55;
+        if (s.tensei > 22) {
+          const k = 1 - (s.tensei - 22) / 30;
+          ctx.strokeStyle = 'rgba(186,140,255,' + (0.3 + k * 0.6) + ')';
+          ctx.lineWidth = 3;
+          for (let i = 0; i < 8; i += 1) {
+            const a2 = (i / 8) * Math.PI * 2 + s.t * 0.06;
+            const d = 120 * (1 - k) + 24;
+            ctx.beginPath();
+            ctx.moveTo(bxx + Math.cos(a2) * d, byy + Math.sin(a2) * d);
+            ctx.lineTo(bxx + Math.cos(a2) * (d * 0.6), byy + Math.sin(a2) * (d * 0.6));
+            ctx.stroke();
+          }
+        } else {
+          const k = 1 - s.tensei / 22;
+          ctx.strokeStyle = 'rgba(210,190,255,' + (1 - k) + ')';
+          ctx.lineWidth = 9;
+          for (let i = 0; i < 3; i += 1) {
+            ctx.beginPath();
+            ctx.arc(bxx, byy, k * 620 + i * 60, Math.PI * 0.55, Math.PI * 1.45);
+            ctx.stroke();
+          }
+          ctx.fillStyle = '#BA8CFF';
+          ctx.font = '15px "Press Start 2P", monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText('SHINRA TENSEI', W / 2, 96);
+        }
+      }
+
+      // ---- serious punch ----
+      if (s.punchT > 0) {
+        const k = 1 - s.punchT / 130;
+        const bxx = s.bossX, byy = GROUND + s.bossOff - bodyH(3) * 0.6;
+        // Air being dragged in behind the fist.
+        ctx.strokeStyle = 'rgba(255,255,255,' + (0.15 + k * 0.55) + ')';
+        ctx.lineWidth = 2;
+        for (let i = 0; i < 22; i += 1) {
+          const yy = (i / 22) * H;
+          const len = 40 + k * 220;
+          ctx.beginPath(); ctx.moveTo(bxx + 60, yy); ctx.lineTo(bxx + 60 + len, yy); ctx.stroke();
+        }
+        const fg = ctx.createRadialGradient(bxx + 30, byy, 0, bxx + 30, byy, 40 + k * 70);
+        fg.addColorStop(0, 'rgba(255,255,255,' + (0.5 + k * 0.5) + ')');
+        fg.addColorStop(1, 'rgba(255,211,77,0)');
+        ctx.fillStyle = fg;
+        ctx.beginPath(); ctx.arc(bxx + 30, byy, 40 + k * 70, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#FFD34D';
+        ctx.font = '16px "Press Start 2P", monospace';
+        ctx.textAlign = 'center';
+        if (k > 0.3) ctx.fillText('SERIOUS PUNCH', W / 2, 96);
+        ctx.font = '9px "Press Start 2P", monospace';
+        if (k > 0.5) ctx.fillText('GET IN THE AIR', W / 2, 122);
+      }
+      if (s.punchGo > 0) {
+        const wall = s.bossX - (34 - s.punchGo) * 34;
+        const wg = ctx.createLinearGradient(wall - 70, 0, wall + 70, 0);
+        wg.addColorStop(0, 'rgba(255,211,77,0)');
+        wg.addColorStop(0.5, 'rgba(255,255,255,' + (s.punchGo / 34) + ')');
+        wg.addColorStop(1, 'rgba(255,211,77,0)');
+        ctx.fillStyle = wg;
+        ctx.fillRect(wall - 70, GROUND - 120, 140, 120);
+      }
+
+      // ---- rasenshuriken ----
+      for (const r of s.rsk) {
+        ctx.save();
+        ctx.translate(r.x, r.y);
+        const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, 84);
+        glow.addColorStop(0, 'rgba(255,255,255,0.95)');
+        glow.addColorStop(0.35, 'rgba(150,205,255,0.75)');
+        glow.addColorStop(1, 'rgba(110,160,255,0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath(); ctx.arc(0, 0, 84, 0, Math.PI * 2); ctx.fill();
+        ctx.rotate(r.t * 0.42);
+        ctx.fillStyle = 'rgba(220,240,255,0.85)';
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = 2;
+        for (let i = 0; i < 4; i += 1) {
+          ctx.rotate(Math.PI / 2);
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(64, -16);
+          ctx.lineTo(74, 0);
+          ctx.lineTo(64, 16);
+          ctx.closePath();
+          ctx.fill(); ctx.stroke();
+        }
+        ctx.beginPath(); ctx.arc(0, 0, 17, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFFFFF'; ctx.fill();
+        ctx.restore();
+      }
+
+      // ---- eight trigrams ----
+      if (s.trigT > 0) {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(200,230,255,0.6)';
+        ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(PLAYER_X, s.y - 90, 130, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(PLAYER_X, s.y - 90, 88, 0, Math.PI * 2); ctx.stroke();
+        for (let i = 0; i < 8; i += 1) {
+          const a2 = (i / 8) * Math.PI * 2 + s.trigT * 0.02;
+          ctx.beginPath();
+          ctx.moveTo(PLAYER_X + Math.cos(a2) * 88, s.y - 90 + Math.sin(a2) * 88);
+          ctx.lineTo(PLAYER_X + Math.cos(a2) * 130, s.y - 90 + Math.sin(a2) * 130);
+          ctx.stroke();
+        }
+        // A strike flash on each palm.
+        if (s.trigT % 11 > 7) {
+          ctx.fillStyle = 'rgba(255,255,255,0.75)';
+          ctx.beginPath();
+          ctx.arc(PLAYER_X + 30 - Math.random() * 60, s.y - 60 - Math.random() * 90, 15, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.fillStyle = '#C8E6FF';
+        ctx.font = '11px "Press Start 2P", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('EIGHT TRIGRAMS  ' + s.trigHits + ' PALMS', W / 2, 96);
+        ctx.restore();
+      }
+
       for (const sh of s.shurikens) {
         ctx.save();
         ctx.translate(sh.x, sh.y);
